@@ -92,12 +92,17 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     zeroizeHoodPosition ();
     // Ensure Intake Deploy Motor is in ZERO position.
     zeroizeIntakePosition ();
+
+    frc::SmartDashboard::PutNumber("ShooterRPM", m_shooterRPM);
+    frc::SmartDashboard::PutNumber("FeederRPM", m_feederRPM);
+    frc::SmartDashboard::PutNumber("SpindexerRPM", m_spindexerRPM);
+    frc::SmartDashboard::PutNumber("IntakeRPM", m_intakeRPM);
 }  
  
 void Turret::SimulationPeriodic() {}
 
 void Turret::Periodic() {
- 
+
      // ****************************************
     string tgtSelection = m_shooterTgtChooser.GetSelected();
     if (tgtSelection != m_lastTgtSelection) {
@@ -157,6 +162,20 @@ void Turret::Periodic() {
         m_lastCmdAction = cmdAction; 
     }
 
+    
+    m_shooterRPM = frc::SmartDashboard::GetNumber("ShooterRPM", 10.0);
+    frc::SmartDashboard::PutNumber("shootRPM", m_shooterRPM);
+
+    m_feederRPM = frc::SmartDashboard::GetNumber("FeederRPM", 10.0);
+    frc::SmartDashboard::PutNumber("feedRPM", m_feederRPM);
+
+    m_spindexerRPM = frc::SmartDashboard::GetNumber("SpindexerRPM", 10.0);
+    frc::SmartDashboard::PutNumber("spinRPM", m_spindexerRPM);
+
+    m_intakeRPM = frc::SmartDashboard::GetNumber("IntakeRPM", 10.0);
+    frc::SmartDashboard::PutNumber("intakeRPM", m_intakeRPM);
+
+
 
     // ****************************************
     // Determine Turret Angle and Distance to the Target
@@ -167,7 +186,7 @@ void Turret::Periodic() {
         frc::Pose2d  m_pose = m_drivePtr->getPose();
 
         // Determine the Turret Pose (Relative to the Robot Pose)
-         m_turretPose = frc::Pose2d{m_pose.Translation()+m_turretTranslation.RotateBy(m_pose.Rotation()), m_pose.Rotation()};
+         m_turretPose = frc::Pose2d{m_pose.Translation()+m_turretTranslation.RotateBy(m_pose.Rotation()), m_pose.Rotation() + frc::Rotation2d{180_deg}};
 
         // Compute Shooting solution (stationary) Turret Angle and Distance
         // The turret angle will point to the target, compensating for robot heading.
@@ -197,7 +216,10 @@ void Turret::Periodic() {
         }
         // SET THE SHOOTER (if enabled) for proper shooting speed to the target
         if (isShooterActive) {
-            setShooterRPM (m_turretTargetDistance);
+            // Determine shoot RPM from distance table lookup
+            // TBD
+            // Temporarily, just set RPM from variable, set by SmartDashboard
+            setShooterRPM (m_shooterRPM);
         }
         // SET THE FEEDER (if enabled) for proper feeding to the shooter
         if (isFeederActive) { 
@@ -316,7 +338,7 @@ void Turret::stopShooter () {
 // *** FEEDER ***
 void Turret::setFeederRPM () {
      // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
-    double rpm = m_feederRPM + m_feederRPMDelta;   // FIXED RPM
+    double rpm = m_feederRPM;   // FIXED RPM
     double motorRPM = rpm * m_feederGearRatio;
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
     double rps = motorRPM / 60.0;
@@ -343,7 +365,7 @@ void Turret::stopFeeder () {
 void Turret::setSpindexerRPM () {
  
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
-    double rpm = m_spindexerRPM + m_spindexerRPMDelta;   // FIXED RPM
+    double rpm = m_spindexerRPM;   // FIXED RPM
     double motorRPM = rpm * m_spindexerGearRatio;
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
     double rps = motorRPM / 60.0;
@@ -365,7 +387,7 @@ void Turret::stopSpindexer () {
 // *** INTAKE ***
 void Turret::setIntakeRPM () {
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
-    double rpm = m_intakeRPM + m_intakeRPMDelta;   // FIXED RPM
+    double rpm = m_intakeRPM;   // FIXED RPM
     double motorRPM = rpm * m_intakeGearRatio;
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
     double rps = motorRPM / 60.0;

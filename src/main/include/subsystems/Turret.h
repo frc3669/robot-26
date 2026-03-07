@@ -64,6 +64,9 @@ class Turret : public frc2::SubsystemBase {
     double m_turretTargetDistance;
     double m_turretTargetDistanceDelta;
 
+    // RPM Setting for Shooter Motors (TBD)  
+    double m_shooterRPM;
+
     // RPM Setting for Feeder Motors (TBD)
     double m_feederRPM = 100;
     double m_feederRPMDelta;
