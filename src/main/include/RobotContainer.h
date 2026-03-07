@@ -32,7 +32,7 @@ class RobotContainer {
   void DisplaySchedulerDetails();
   void InitializeOdometry();
   
-  ScoringMech m_scoringMech{&m_XKeys};
+ // ScoringMech m_scoringMech{&m_XKeys};
 
  private:
   frc::GenericHID m_driverController{0};
@@ -41,7 +41,7 @@ class RobotContainer {
   
   // subsystems...
   Swerve m_drive{0};
-  Climb m_climber{};
+  // Climb m_climber{};
   Turret m_turret{&m_drive, &m_XKeys};
 
   // autonomous routines

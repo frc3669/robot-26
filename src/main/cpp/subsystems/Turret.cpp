@@ -472,7 +472,7 @@ double Turret::computeTurretAngleInDegrees(frc::Pose2d turretPose, frc::Translat
     double RadiansToDegrees = 180.0 / pi_val;   // Radians to Degrees Conversion Factor
     //double DegreesToRadians = pi_val / 180.0; // Degrees to Radians Conversion Factor
     double turretAngleDegrees = 0.0;
-    double MAX_TURRET_ROTATION_ANGLE = 270.0;   // Maximum Turret Rotation Angle (Either Direction)
+    double MAX_TURRET_ROTATION_ANGLE = 179.5;   // Maximum Turret Rotation Angle (Either Direction)
     //double TurretAngleRadians = 0.0;
 
     // Compute the Angle from the Robot X,Y Position to the Target X,Y Position

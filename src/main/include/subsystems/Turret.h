@@ -101,39 +101,39 @@ class Turret : public frc2::SubsystemBase {
     // **********************
     // Turret Related Motors
     // Turret Motor (Position - -VAL to ZERO to +VAL)
-    ctre::phoenix6::hardware::TalonFX turretMotor{51, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX turretMotor{71, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configTurretMotor{};
 
     // Hood Motor (Position - ZERO to +VAL)
-    ctre::phoenix6::hardware::TalonFX hoodMotor{52, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX hoodMotor{72, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configHoodMotor{};
 
     // Shooter Motors (Variable Speed) IDENTICAL SPEED, OPPOSITE DIRECTION
     // FORWARD
-    ctre::phoenix6::hardware::TalonFX shooterForwardMotor{53, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX shooterForwardMotor{73, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configShooterForwardMotor{};
     // REVERSE
-    ctre::phoenix6::hardware::TalonFX shooterReverseMotor{53, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX shooterReverseMotor{74, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configShooterReverseMotor{};
 
     // Feeder Motors (FIXED Speed) - IDENTICAL SPEED, OPPOSITE DIRECTION
     // FORWARD
-    ctre::phoenix6::hardware::TalonFX feederForwardMotor{54, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX feederForwardMotor{75, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configFeederForwardMotor{};
     // REVERSE
-    ctre::phoenix6::hardware::TalonFX feederReverseMotor{55, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX feederReverseMotor{76, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configFeederReverseMotor{};
 
     // Spindexer Motor (FIXED Speed)
-    ctre::phoenix6::hardware::TalonFX spindexerMotor{56, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX spindexerMotor{77, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configSpindexerMotor{};
 
     // Intake Device Motors (Intake - FIXED Speed and Deploy - Position)
     // Intake Motor (FIXED Speed)
-    ctre::phoenix6::hardware::TalonFX intakeMotor{57, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX intakeMotor{78, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configIntakeMotor{};
     // Deploy Motor (Position - ZERO to +VAL)
-    ctre::phoenix6::hardware::TalonFX deployMotor{58, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX deployMotor{79, ctre::phoenix6::CANBus("rio")};
     ctre::phoenix6::configs::TalonFXConfiguration configDeployMotor{};
 
 
