@@ -175,6 +175,11 @@ void Turret::Periodic() {
     m_intakeRPM = frc::SmartDashboard::GetNumber("IntakeRPM", 10.0);
     frc::SmartDashboard::PutNumber("intakeRPM", m_intakeRPM);
 
+    frc::SmartDashboard::PutNumber("turretRPS", m_turretRPS);
+    frc::SmartDashboard::PutNumber("shooterRPS", m_shooterRPS);
+    frc::SmartDashboard::PutNumber("feederRPS", m_feederRPS);
+    frc::SmartDashboard::PutNumber("spindexerRPS", m_spindexerRPS);
+    frc::SmartDashboard::PutNumber("intakeRPS", m_intakeRPS);
 
 
     // ****************************************
@@ -255,8 +260,8 @@ void Turret::Periodic() {
 // *** TURRET ***
  void Turret::setTurretPosition (double angle) {
     double mechRotations = angle / 360.0;
-    double motorRotations = mechRotations * m_turretGearRatio;
-    units::angle::turn_t turns = (units::angle::turn_t) motorRotations;
+    m_turretRPS = mechRotations * m_turretGearRatio;
+    units::angle::turn_t turns = (units::angle::turn_t) m_turretRPS;
     ctre::phoenix6::controls::MotionMagicDutyCycle request{turns};
     turretMotor.SetControl(request);
  }
@@ -315,11 +320,11 @@ void Turret::setShooterRPM (double rpm) {
     // NOTE: Lookup Table was used to determine proper RPM 
     double motorRPM = rpm * m_shooterGearRatio;
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
-    double rps = motorRPM / 60.0;
+    m_shooterRPS = motorRPM / 60.0;
 
     // Set the motor speeds (FORWARD and REVERSE)
-    shooterForwardMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)+rps});
-    shooterReverseMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-rps});
+    shooterForwardMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)+m_shooterRPS});
+    shooterReverseMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-m_shooterRPS});
 }
 
 void Turret::startShooter () {
@@ -341,11 +346,11 @@ void Turret::setFeederRPM () {
     double rpm = m_feederRPM;   // FIXED RPM
     double motorRPM = rpm * m_feederGearRatio;
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
-    double rps = motorRPM / 60.0;
+    m_feederRPS = motorRPM / 60.0;
 
     // Set the motor speeds (FORWARD and REVERSE)
-    feederForwardMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)+rps});
-    feederReverseMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-rps});
+    feederForwardMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-m_feederRPS});
+    feederReverseMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-m_feederRPS});
 }
 
 void Turret::startFeeder () {
@@ -368,10 +373,10 @@ void Turret::setSpindexerRPM () {
     double rpm = m_spindexerRPM;   // FIXED RPM
     double motorRPM = rpm * m_spindexerGearRatio;
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
-    double rps = motorRPM / 60.0;
+    m_spindexerRPS = motorRPM / 60.0;
 
     // Set the motor speed
-    spindexerMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) rps});
+    spindexerMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) m_spindexerRPS});
 }
 
 void Turret::startSpindexer () {
@@ -390,10 +395,10 @@ void Turret::setIntakeRPM () {
     double rpm = m_intakeRPM;   // FIXED RPM
     double motorRPM = rpm * m_intakeGearRatio;
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
-    double rps = motorRPM / 60.0;
+    m_intakeRPS = motorRPM / 60.0;
 
     // Set the motor speeds (FORWARD and REVERSE)
-    intakeMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) rps});
+    intakeMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) m_intakeRPS});
 }
 
 void Turret::zeroizeIntakePosition () {

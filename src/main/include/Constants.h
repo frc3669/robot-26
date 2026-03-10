@@ -24,8 +24,8 @@ namespace DriverControllerConstants {
 namespace SwerveConstants {
     inline constexpr units::time::second_t time_to_full_speed = 0.5625_s;
     inline constexpr units::current::ampere_t max_torque_current = 100_A;
-    inline constexpr double motor_turns_per_wheel_turn = 5.9;
-    inline constexpr double motor_turns_per_steering_turn = 12.8;
+    inline constexpr double motor_turns_per_wheel_turn = 6.03;
+    inline constexpr double motor_turns_per_steering_turn = 287/11;
     inline constexpr double wheel_diameter_m = 0.10081;
     inline constexpr double motor_turns_per_m = motor_turns_per_wheel_turn / (wheel_diameter_m*M_PI);
     inline constexpr units::velocity::meters_per_second_t max_m_per_sec = 4.5_mps;

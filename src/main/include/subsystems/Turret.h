@@ -68,13 +68,13 @@ class Turret : public frc2::SubsystemBase {
     double m_shooterRPM;
 
     // RPM Setting for Feeder Motors (TBD)
-    double m_feederRPM = 100;
+    double m_feederRPM = 10;
     double m_feederRPMDelta;
     // RPM Setting for Spindexer Motor (TBD)
-    double m_spindexerRPM = 100;
+    double m_spindexerRPM = 10;
     double m_spindexerRPMDelta;
     // RPM setting for Intake Motor (TBD)
-    double m_intakeRPM = 100;
+    double m_intakeRPM = 10;
     double m_intakeRPMDelta;
     // Deploy Position for Intake Deploy Motor (TBD)
     double m_intakeDeployPosition = 10;
@@ -101,39 +101,45 @@ class Turret : public frc2::SubsystemBase {
     // **********************
     // Turret Related Motors
     // Turret Motor (Position - -VAL to ZERO to +VAL)
-    ctre::phoenix6::hardware::TalonFX turretMotor{71, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX turretMotor{41, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configTurretMotor{};
+    double m_turretRPS = 0;
 
     // Hood Motor (Position - ZERO to +VAL)
-    ctre::phoenix6::hardware::TalonFX hoodMotor{72, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX hoodMotor{42, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configHoodMotor{};
 
     // Shooter Motors (Variable Speed) IDENTICAL SPEED, OPPOSITE DIRECTION
     // FORWARD
-    ctre::phoenix6::hardware::TalonFX shooterForwardMotor{73, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX shooterForwardMotor{43, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configShooterForwardMotor{};
     // REVERSE
-    ctre::phoenix6::hardware::TalonFX shooterReverseMotor{74, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX shooterReverseMotor{44, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configShooterReverseMotor{};
+    double m_shooterRPS = 0;   // BOTH Motors set to this speed (+/-)
 
     // Feeder Motors (FIXED Speed) - IDENTICAL SPEED, OPPOSITE DIRECTION
     // FORWARD
-    ctre::phoenix6::hardware::TalonFX feederForwardMotor{75, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX feederForwardMotor{45, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configFeederForwardMotor{};
     // REVERSE
-    ctre::phoenix6::hardware::TalonFX feederReverseMotor{76, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX feederReverseMotor{46, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configFeederReverseMotor{};
+    double m_feederRPS = 0;  // BOTH Motors set to this speed
 
     // Spindexer Motor (FIXED Speed)
-    ctre::phoenix6::hardware::TalonFX spindexerMotor{77, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX spindexerMotor{47, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configSpindexerMotor{};
+    double m_spindexerRPS = 0;
 
     // Intake Device Motors (Intake - FIXED Speed and Deploy - Position)
     // Intake Motor (FIXED Speed)
-    ctre::phoenix6::hardware::TalonFX intakeMotor{78, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX intakeMotor{48, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configIntakeMotor{};
+    double m_intakeRPS = 0;
+
     // Deploy Motor (Position - ZERO to +VAL)
-    ctre::phoenix6::hardware::TalonFX deployMotor{79, ctre::phoenix6::CANBus("rio")};
+    ctre::phoenix6::hardware::TalonFX deployMotor{49, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configDeployMotor{};
 
 
@@ -164,8 +170,8 @@ class Turret : public frc2::SubsystemBase {
     // (Since facing the same direction as the robot, angle is ZERO).
     // (Translates inches to meters accomplished by the type definitions)
     // (TBD - X= -12.0 inches, Y = +12.0 inches, NO ROTATION !!!)
-    frc::Translation2d m_turretTranslation{ units::length::meter_t {-12.0_in},
-                                            units::length::meter_t {+12.0_in}};
+    frc::Translation2d m_turretTranslation{ units::length::meter_t {-6.75_in},
+                                            units::length::meter_t {+6.75_in}};
 
                     
     // ****************************************

@@ -46,26 +46,26 @@ class Swerve : public frc2::SubsystemBase
 
   private:
     frc::GenericHID m_driverController;
-    ctre::phoenix6::hardware::Pigeon2 gyro{1, ctre::phoenix6::CANBus("CTREdevices")};
+    ctre::phoenix6::hardware::Pigeon2 gyro{1, ctre::phoenix6::CANBus("Swerve CAN")};
     ctre::phoenix6::StatusSignal<units::angle::degree_t> * m_gyroAngleSignal;
     std::vector<ctre::phoenix6::BaseStatusSignal*> m_statusSignals;
     frc::Timer autoTimer;
     frc::Timer positionReachedTimer;
     // robot swerve modules
     SwerveModule m_frontLeft  = SwerveModule(1), 
-                 m_frontRight = SwerveModule(4),
-                 m_backLeft   = SwerveModule(2),
-                 m_backRight  = SwerveModule(3) ;
+                 m_frontRight = SwerveModule(2),
+                 m_backLeft   = SwerveModule(3),
+                 m_backRight  = SwerveModule(4) ;
     // array of module pointers
     SwerveModule * m_moduleList[4] = { &m_frontLeft, 
                                        &m_frontRight,
                                        &m_backLeft,
                                        &m_backRight };
 
-    frc::Translation2d m_frontLeftLocation{12_in, 12_in};
-    frc::Translation2d m_frontRightLocation{12_in, -12_in};
-    frc::Translation2d m_backLeftLocation{-12_in, 12_in};
-    frc::Translation2d m_backRightLocation{-12_in, -12_in};
+    frc::Translation2d m_frontLeftLocation{10.5_in, 10.5_in};
+    frc::Translation2d m_frontRightLocation{10.5_in, -10.5_in};
+    frc::Translation2d m_backLeftLocation{-10.5_in, 10.5_in};
+    frc::Translation2d m_backRightLocation{-10.5_in, -10.5_in};
     
     /**
      * swerve kinematics object for calculating the module states

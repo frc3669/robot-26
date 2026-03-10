@@ -12,9 +12,9 @@ using namespace std;
 
 // create a Swerve module object with specified position and ID
 SwerveModule::SwerveModule(int moduleID) : 
-        m_moduleID(moduleID), m_driveMotor(10 + moduleID, CANBus("CTREdevices")),
-        m_steeringMotor(20 + moduleID, CANBus("CTREdevices")),
-        m_encoder(30 + moduleID, CANBus("CTREdevices")) {
+        m_moduleID(moduleID), m_driveMotor(10 + moduleID, CANBus("Swerve CAN")),
+        m_steeringMotor(20 + moduleID, CANBus("Swerve CAN")),
+        m_encoder(30 + moduleID, CANBus("Swerve CAN")) {
     m_driveMotorTurns = new StatusSignal(m_driveMotor.GetPosition());
     m_driveMotorVelocity = new StatusSignal(m_driveMotor.GetVelocity());
     m_encoderTurns = new StatusSignal(m_encoder.GetAbsolutePosition());
