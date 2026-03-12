@@ -11,6 +11,9 @@
 #include "Constants.h"
 #include "util.h"
 
+#include "ctre/phoenix6/controls/VelocityDutyCycle.hpp"
+#include "units/angular_velocity.h"
+
 #include "ctre/phoenix6/controls/VelocityVoltage.hpp"
 #include "ctre/phoenix6/controls/PositionDutyCycle.hpp"
 
@@ -64,18 +67,18 @@ class Turret : public frc2::SubsystemBase {
     double m_turretTargetDistance;
     double m_turretTargetDistanceDelta;
 
-    // RPM Setting for Shooter Motors (TBD)  
-    double m_shooterRPM;
+    // RPM Setting for Shooter Motors (TBD)  (Forward +value, Reverse -value)
+    double m_shooterRPS;
 
     // RPM Setting for Feeder Motors (TBD)
-    double m_feederRPM = 10;
-    double m_feederRPMDelta;
+    double m_feederRPS = 3.0;
+
     // RPM Setting for Spindexer Motor (TBD)
-    double m_spindexerRPM = 10;
-    double m_spindexerRPMDelta;
+    double m_spindexerRPS = 3.4;
+
     // RPM setting for Intake Motor (TBD)
     double m_intakeRPM = 10;
-    double m_intakeRPMDelta;
+
     // Deploy Position for Intake Deploy Motor (TBD)
     double m_intakeDeployPosition = 10;
   
@@ -108,29 +111,28 @@ class Turret : public frc2::SubsystemBase {
     // Hood Motor (Position - ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX hoodMotor{42, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configHoodMotor{};
+    double m_MaxHoodAngle = 1.0; // TBD 
 
     // Shooter Motors (Variable Speed) IDENTICAL SPEED, OPPOSITE DIRECTION
-    // FORWARD
-    ctre::phoenix6::hardware::TalonFX shooterForwardMotor{43, ctre::phoenix6::CANBus("Main CAN")};
-    ctre::phoenix6::configs::TalonFXConfiguration configShooterForwardMotor{};
     // REVERSE
-    ctre::phoenix6::hardware::TalonFX shooterReverseMotor{44, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::hardware::TalonFX shooterReverseMotor{43, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configShooterReverseMotor{};
-    double m_shooterRPS = 0;   // BOTH Motors set to this speed (+/-)
+    // FORWARD
+    ctre::phoenix6::hardware::TalonFX shooterForwardMotor{44, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::configs::TalonFXConfiguration configShooterForwardMotor{};
+
 
     // Feeder Motors (FIXED Speed) - IDENTICAL SPEED, OPPOSITE DIRECTION
-    // FORWARD
-    ctre::phoenix6::hardware::TalonFX feederForwardMotor{45, ctre::phoenix6::CANBus("Main CAN")};
-    ctre::phoenix6::configs::TalonFXConfiguration configFeederForwardMotor{};
-    // REVERSE
-    ctre::phoenix6::hardware::TalonFX feederReverseMotor{46, ctre::phoenix6::CANBus("Main CAN")};
-    ctre::phoenix6::configs::TalonFXConfiguration configFeederReverseMotor{};
-    double m_feederRPS = 0;  // BOTH Motors set to this speed
+    // DUAL WHEEL
+    ctre::phoenix6::hardware::TalonFX feederDualMotor{45, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::configs::TalonFXConfiguration configFeederDualMotor{};
+    // SINGLE WHEEL
+    ctre::phoenix6::hardware::TalonFX feederSingleMotor{46, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::configs::TalonFXConfiguration configFeederSingleMotor{};
 
     // Spindexer Motor (FIXED Speed)
     ctre::phoenix6::hardware::TalonFX spindexerMotor{47, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configSpindexerMotor{};
-    double m_spindexerRPS = 0;
 
     // Intake Device Motors (Intake - FIXED Speed and Deploy - Position)
     // Intake Motor (FIXED Speed)
@@ -154,7 +156,7 @@ class Turret : public frc2::SubsystemBase {
     double m_hoodGearRatio = 2.0;
     double m_shooterGearRatio = 1.0;
     double m_feederGearRatio = 1.0;
-    double m_spindexerGearRatio = 1.0;
+    
     double m_intakeGearRatio = 1.0;
 
     // target pose for autonomous positioning during teleop
@@ -186,15 +188,16 @@ class Turret : public frc2::SubsystemBase {
     void startHood ();
     void stopHood ();
 
-    void setShooterRPM (double distance);
+    double getShooterRPS(double distance);
+    void setShooterRPS (double rps);
     void startShooter ();
     void stopShooter ();
 
-    void setFeederRPM ();
+    void setFeederRPS ();
     void startFeeder ();
     void stopFeeder ();
    
-    void setSpindexerRPM ();
+    void setSpindexerRPS ();
     void startSpindexer ();
     void stopSpindexer ();
 
