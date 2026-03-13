@@ -268,7 +268,7 @@ void Swerve::UpdateVision(const std::string& name) {
     // Get the limelight pose, based upon team alliance (Red or Blue)
     LimelightHelpers::PoseEstimate llPose;
     if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
-        LimelightHelpers::SetRobotOrientation(name, m_gyroAngleSignal->GetValue().value
+        LimelightHelpers::SetRobotOrientation(name, m_gyroAngleSignal->GetValue().value() + 180, 0.0, 0.0, 0.0, 0.0, 0.0);
         llPose = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2(name); 
     } else {
         LimelightHelpers::SetRobotOrientation(name, m_gyroAngleSignal->GetValue().value() + 180, 0.0, 0.0, 0.0, 0.0, 0.0);

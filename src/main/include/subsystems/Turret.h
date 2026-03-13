@@ -11,11 +11,9 @@
 #include "Constants.h"
 #include "util.h"
 
-#include "ctre/phoenix6/controls/VelocityDutyCycle.hpp"
-#include "units/angular_velocity.h"
-
 #include "ctre/phoenix6/controls/VelocityVoltage.hpp"
-#include "ctre/phoenix6/controls/PositionDutyCycle.hpp"
+#include "ctre/phoenix6/controls/PositionVoltage.hpp"
+#include <ctre/phoenix6/configs/MotionMagicConfigs.hpp>
 
 #include "Swerve.h"
 
@@ -67,13 +65,13 @@ class Turret : public frc2::SubsystemBase {
     double m_turretTargetDistance;
     double m_turretTargetDistanceDelta;
 
-    // RPM Setting for Shooter Motors (TBD)  (Forward +value, Reverse -value)
-    double m_shooterRPS;
+    // RPS Setting for Shooter Motors (TBD)  (Forward +value, Reverse -value)
+    double m_shooterRPS = 2.0;
 
-    // RPM Setting for Feeder Motors (TBD)
+    // RPS Setting for Feeder Motors (TBD)
     double m_feederRPS = 3.0;
 
-    // RPM Setting for Spindexer Motor (TBD)
+    // RPS Setting for Spindexer Motor (TBD)
     double m_spindexerRPS = 3.4;
 
     // RPM setting for Intake Motor (TBD)
@@ -82,7 +80,6 @@ class Turret : public frc2::SubsystemBase {
     // Deploy Position for Intake Deploy Motor (TBD)
     double m_intakeDeployPosition = 10;
   
-
     // 
     // The currently selected turret target position
     frc::Translation2d m_turretTarget {0_in, 0_in};
@@ -97,7 +94,6 @@ class Turret : public frc2::SubsystemBase {
     // ****************************************
 
 
-
   private:
     frc2::CommandGenericHID *xkeys;
 
@@ -106,12 +102,20 @@ class Turret : public frc2::SubsystemBase {
     // Turret Motor (Position - -VAL to ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX turretMotor{41, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configTurretMotor{};
-    double m_turretRPS = 0;
+  
+    double m_turretTurns = 0;
+    double m_turretAngle = 0.0;   // Testing
+    double m_MinTurretAngle = -120.0; // MIN CCW
+    double m_MaxTurretAngle = 120.0;  // MAX CW
 
     // Hood Motor (Position - ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX hoodMotor{42, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configHoodMotor{};
-    double m_MaxHoodAngle = 1.0; // TBD 
+   
+    double m_hoodTurns = 0;
+    double m_hoodAngle = 10.0;    // Testing
+    double m_MinHoodAngle = 10.0; // MIN (Ten Degrees) is Fully Retracted
+    double m_MaxHoodAngle = 45.0; // MAX TBD is fully extended
 
     // Shooter Motors (Variable Speed) IDENTICAL SPEED, OPPOSITE DIRECTION
     // REVERSE
@@ -152,12 +156,20 @@ class Turret : public frc2::SubsystemBase {
     bool isSpindexerActive; // MUST be TRUE to feed balls  (when FALSE, the spindexer is STOPPED)
     bool isIntakeActive;    // MUST be TRUE to pickup balls (when FALSE, the intake is UP and STOPPED)
 
-    double m_turretGearRatio = 50;
-    double m_hoodGearRatio = 2.0;
-    double m_shooterGearRatio = 1.0;
-    double m_feederGearRatio = 1.0;
-    
-    double m_intakeGearRatio = 1.0;
+    // Various Gear Ratios for the various motors
+    // POSITION
+    double m_turretGearRatio = (200 / 20) * (5 / 1); // Turret Base has 200 teeth, 
+                                                     // Turret Motor has 20 teeth 
+                                                     // Gearbox on motor (5-to-1)
+    double m_hoodGearRatio = (350 / 16) * (30 / 12); // Hood "circle" has 350 teeth                          (54.6875 to 1)
+                                                     // Hood triple-sprocket has 16 teeth
+                                                     // Hood large belt socket has 30 teeth
+                                                     // Hood small belt socket has 12 teeth
+    // SPEED 
+    double m_shooterGearRatio   = 1.0;
+    double m_feederGearRatio    = 1.0;
+    double m_spindexerGearRatio = ( 3 / 1 );         // Gearbox on motor (3-to-1)
+    double m_intakeGearRatio    = 1.0;
 
     // target pose for autonomous positioning during teleop
     frc::Pose2d m_targetPose;
@@ -183,8 +195,8 @@ class Turret : public frc2::SubsystemBase {
     void startTurret ();
     void stopTurret ();
 
-    void setHoodPosition (double distance);
-    void zeroizeHoodPosition ();
+    void setHoodPosition (double angle);   // Valid Hood angles are 10 degrees (retacted)  - N degrees (fully extended).  
+    void zeroizeHoodPosition ();           // Zeroized is fully retracted which is 10 degree angle
     void startHood ();
     void stopHood ();
 

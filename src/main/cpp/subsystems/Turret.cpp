@@ -23,13 +23,27 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     // ***************************************
     // define PID values for all Turret motors
     // Turret Motor (Position)
-    configTurretMotor.Slot0.kP = 0.2;
-    configTurretMotor.Slot0.kI = 0.0;
-    configTurretMotor.Slot0.kD = 0.1;
+    // Slot 0 Gain settings
+    configTurretMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake; 
+    // Slot 0 settings
+    configTurretMotor.Slot0.kS = 0.25;  // Add 0.25 V output to overcome static friction
+    configTurretMotor.Slot0.kV = 0.12;  // A velocity target of 1 rps results in 0.12 V output
+    configTurretMotor.Slot0.kA = 0.01;  // An acceleration of 1 rps/s requires 0.01 V output
+    configTurretMotor.Slot0.kP = 4.8;   // A position error of 2.5 rotations results in 12 V output
+    configTurretMotor.Slot0.kI = 0;     // no output for integrated error
+    configTurretMotor.Slot0.kD = 0.1;   // A velocity error of 1 rps results in 0.1 V output   configTurretMotor.Slot0.kP = 1.2;
+    // Motion Magic settings
+    // NOT TESTED configTurretMotor.MotionMagic.MotionMagicJerk = 2_tr_per_s_cu;  // Target jerk of rps/s/s 
+    configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;  // cruise velocity of turret
+    configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.12; // Speed per unit of voltage (rotations/sec/V)
+    configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V)
+    // Apply Configuration 
     turretMotor.GetConfigurator().Apply(configTurretMotor);
+
  
     // Hood Motor (Position)
-    configHoodMotor.Slot0.kP = 0.2;
+    configHoodMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake; 
+    configHoodMotor.Slot0.kP = 2.4;
     configHoodMotor.Slot0.kI = 0.0;
     configHoodMotor.Slot0.kD = 0.1;
     hoodMotor.GetConfigurator().Apply(configHoodMotor);
@@ -37,38 +51,43 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
 
     // Shooter Motor(s) (Speed)  SAME CONFIG IS USED FOR BOTH MOTORS
     configShooterForwardMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
-    configShooterForwardMotor.Slot0.kP = -0.1;
+    configShooterForwardMotor.Slot0.kS = 0.1;
+    configShooterForwardMotor.Slot0.kV = 0.12;
+    configShooterForwardMotor.Slot0.kP = 0.11;
     configShooterForwardMotor.Slot0.kI = 0;
     configShooterForwardMotor.Slot0.kD = 0;
-    configShooterForwardMotor.Slot0.kV = -0.1;
     shooterForwardMotor.GetConfigurator().Apply(configShooterForwardMotor);
     configShooterReverseMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
-    configShooterReverseMotor.Slot0.kP = -0.1;
+    configShooterReverseMotor.Slot0.kS = 0.1;
+    configShooterReverseMotor.Slot0.kV = 0.12;
+    configShooterReverseMotor.Slot0.kP = 0.11;
     configShooterReverseMotor.Slot0.kI = 0;
     configShooterReverseMotor.Slot0.kD = 0;
-    configShooterReverseMotor.Slot0.kV = -0.1;
     shooterReverseMotor.GetConfigurator().Apply(configShooterReverseMotor);
  
     // Feeder Motor(s) (Speed)  SAME CONFIG IS USED FOR BOTH MOTORS
     configFeederDualMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
-    configFeederDualMotor.Slot0.kP = -0.1;
+    configFeederDualMotor.Slot0.kS = 0.1;   
+    configFeederDualMotor.Slot0.kV = 0.12;
+    configFeederDualMotor.Slot0.kP = 0.11;
     configFeederDualMotor.Slot0.kI = 0;
     configFeederDualMotor.Slot0.kD = 0;
-    configFeederDualMotor.Slot0.kV = -0.1;
     feederDualMotor.GetConfigurator().Apply(configFeederDualMotor);
     configFeederSingleMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
-    configFeederSingleMotor.Slot0.kP = -0.1;
+    configFeederSingleMotor.Slot0.kS = 0.1; 
+    configFeederSingleMotor.Slot0.kV = 0.12;
+    configFeederSingleMotor.Slot0.kP = 0.11;
     configFeederSingleMotor.Slot0.kI = 0;
     configFeederSingleMotor.Slot0.kD = 0;
-    configFeederSingleMotor.Slot0.kV = -0.1;
     feederSingleMotor.GetConfigurator().Apply(configFeederSingleMotor);
  
     // Spindexer Motor (Speed)
     configSpindexerMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
-    configSpindexerMotor.Slot0.kP = -0.1;
+    configSpindexerMotor.Slot0.kS = 0.1;
+    configSpindexerMotor.Slot0.kV = 0.12;
+    configSpindexerMotor.Slot0.kP = 0.11;
     configSpindexerMotor.Slot0.kI = 0;
     configSpindexerMotor.Slot0.kD = 0;
-    configSpindexerMotor.Slot0.kV = -0.1;
     spindexerMotor.GetConfigurator().Apply(configSpindexerMotor);
 
     // Intake Motors (Intake and Deploy)
@@ -97,7 +116,7 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     zeroizeIntakePosition ();
 
     frc::SmartDashboard::PutNumber("ShooterRPS", m_shooterRPS);
-    frc::SmartDashboard::PutNumber("FeederRPS", m_feederRPS);
+    frc::SmartDashboard::PutNumber("FeederRPS",  m_feederRPS);
     frc::SmartDashboard::PutNumber("SpindexerRPS", m_spindexerRPS);
     frc::SmartDashboard::PutNumber("IntakeRPM", m_intakeRPM);
 }  
@@ -165,7 +184,14 @@ void Turret::Periodic() {
         m_lastCmdAction = cmdAction; 
     }
 
-    
+    m_turretAngle = frc::SmartDashboard::GetNumber("TurretANGLE", 0.0);
+    frc::SmartDashboard::PutNumber("TurretANGLE", m_turretAngle);    
+    frc::SmartDashboard::PutNumber("TurretTURNS", m_turretTurns);
+
+    m_hoodAngle = frc::SmartDashboard::GetNumber("HoodANGLE", 0.0);
+    frc::SmartDashboard::PutNumber("HoodANGLE", m_hoodAngle);
+    frc::SmartDashboard::PutNumber("HoodTURNS", m_hoodTurns);
+  
     m_shooterRPS = frc::SmartDashboard::GetNumber("ShooterRPS", 10.0);
     frc::SmartDashboard::PutNumber("shootRPS", m_shooterRPS);
 
@@ -178,7 +204,6 @@ void Turret::Periodic() {
     m_intakeRPM = frc::SmartDashboard::GetNumber("IntakeRPM", 10.0);
     frc::SmartDashboard::PutNumber("intakeRPM", m_intakeRPM);
 
-    frc::SmartDashboard::PutNumber("turretRPS", m_turretRPS);
     frc::SmartDashboard::PutNumber("shooterRPS", m_shooterRPS);
     frc::SmartDashboard::PutNumber("feederRPS", m_feederRPS);
     frc::SmartDashboard::PutNumber("spindexerRPS", m_spindexerRPS);
@@ -194,7 +219,7 @@ void Turret::Periodic() {
         frc::Pose2d  m_pose = m_drivePtr->getPose();
 
         // Determine the Turret Pose (Relative to the Robot Pose)
-         m_turretPose = frc::Pose2d{m_pose.Translation()+m_turretTranslation.RotateBy(m_pose.Rotation()), m_pose.Rotation() + frc::Rotation2d{180_deg}};
+        m_turretPose = frc::Pose2d{m_pose.Translation()+m_turretTranslation.RotateBy(m_pose.Rotation()), m_pose.Rotation() + frc::Rotation2d{180_deg}};
 
         // Compute Shooting solution (stationary) Turret Angle and Distance
         // The turret angle will point to the target, compensating for robot heading.
@@ -216,11 +241,18 @@ void Turret::Periodic() {
         // Adjust the Turret Motors for Proper Operation
         // SET THE TURRET (if enabled) for proper shooting direction to the target
         if (isTurretActive) {
-            setTurretPosition(m_turretTargetAngle);
+            //setTurretPosition(m_turretTargetAngle);
+            // TBD
+            // Temporarily, just set RPS from variable, set by SmartDashboard
+            setTurretPosition(m_turretAngle);
         }
         // SET THE HOOD (if enabled) for proper shooting angle to the target
         if (isHoodActive) {
-            setHoodPosition (m_turretTargetDistance);
+            // Determine hood RPS from distance table lookup
+            //m_hoodAngle = getHoodAngle (m_turretTargetDistance);
+            // TBD
+            // Temporarily, just set RPS from variable, set by SmartDashboard
+            setHoodPosition (m_hoodAngle);
         }
         // SET THE SHOOTER (if enabled) for proper shooting speed to the target
         if (isShooterActive) {
@@ -263,17 +295,32 @@ void Turret::Periodic() {
 //
 // *** TURRET ***
  void Turret::setTurretPosition (double angle) {
-    double mechRotations = angle / 360.0;
-    m_turretRPS = mechRotations * m_turretGearRatio;
-    units::angle::turn_t turns = (units::angle::turn_t) m_turretRPS;
-    ctre::phoenix6::controls::MotionMagicDutyCycle request{turns};
-    turretMotor.SetControl(request);
+
+    // NOTE: angle is for CCW coordinate system.
+    // NOTE: turns for motor need to go the opposite direction
+    // NOTE: Therefore, we change the sign of the requested angle 
+    double reqAngle = -angle;
+    // Ensure angle NOT MORE than maximum
+    if (reqAngle > m_MaxTurretAngle) {
+        reqAngle = m_MaxTurretAngle;
+    }
+    // Ensure angle NOT LESS than minimum
+    if (reqAngle < m_MinTurretAngle) {
+        reqAngle = m_MinTurretAngle;
+    }
+ 
+    double mechRotations = reqAngle / 360.0;
+    m_turretTurns = mechRotations * m_turretGearRatio;
+    units::angle::turn_t turns = (units::angle::turn_t) m_turretTurns;
+
+    ctre::phoenix6::controls::MotionMagicExpoVoltage m_turretRequest{0_tr};
+    // Move the turret the desired number of turns, matching the requested angle
+    turretMotor.SetControl(m_turretRequest.WithPosition(turns)); 
  }
     
  void Turret::zeroizeTurretPosition () {
-    // ASSUMES THE TURRET HAS BEEN MANUALLY ALIGNED, FACING 0 degrees FORWARD, SAME AS ROBOT FRONT
-    ctre::phoenix6::controls::PositionDutyCycle initZeroRequest{(units::angle::turn_t) 0};
-    turretMotor.SetControl (initZeroRequest);
+    // ASSUMES THE TURRET HAS BEEN MANUALLY ALIGNED, FACING 180 degrees FORWARD, REVERSE OF ROBOT FRONT
+    turretMotor.SetPosition ((units::angle::turn_t) 0.0);
     isTurretActive = true;
  }
 
@@ -282,31 +329,34 @@ void Turret::startTurret () {
 }
 
 void Turret::stopTurret () {
-    // Disable the Hood and Stow (fully retract to allow Trench passage)
-    units::angle::turn_t turretZeroPosition = (units::angle::turn_t) 0;
-
     isTurretActive = false;
-    ctre::phoenix6::controls::MotionMagicDutyCycle turretRequest{turretZeroPosition};
-    turretMotor.SetControl(turretRequest);    
 }
 
-// *** HOOD ***
+
 void Turret::setHoodPosition (double angle) {
-    // Ensure angle less than maximum
-    if (angle > m_MaxHoodAngle) {
-        angle = m_MaxHoodAngle;
+    double reqAngle = angle;
+    // Ensure angle NOT MORE than maximum
+    if (reqAngle > m_MaxHoodAngle) {
+        reqAngle = m_MaxHoodAngle;
     }
-    double mechRotations = angle / 360.0;
-    double motorRotations = mechRotations * m_hoodGearRatio;
-    units::angle::turn_t turns = (units::angle::turn_t) motorRotations;   
-    ctre::phoenix6::controls::MotionMagicDutyCycle request{turns};
-    hoodMotor.SetControl(request);
+    // Ensure angle NOT LESS than minimum
+    if (reqAngle < m_MinHoodAngle) {
+        reqAngle = m_MinHoodAngle;
+    }
+    // Subtract MIN from angle, to match zeroized when angle is = m_MinHoodAngle
+    reqAngle = reqAngle - m_MinHoodAngle;
+
+    double mechRotations = reqAngle / 360.0;
+    m_hoodTurns = mechRotations * m_hoodGearRatio;
+    units::angle::turn_t turns = (units::angle::turn_t) m_hoodTurns;
+ 
+    ctre::phoenix6::controls::PositionVoltage hoodRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0); 
+    hoodMotor.SetControl(hoodRequest.WithPosition(turns));   
 }
     
 void Turret::zeroizeHoodPosition () {
     // ASSUMES THE HOOD IS FULLY LOWERED (NOT EXTENDED)
-    ctre::phoenix6::controls::PositionDutyCycle initZeroRequest{(units::angle::turn_t) 0};
-    hoodMotor.SetControl (initZeroRequest);
+    hoodMotor.SetPosition ((units::angle::turn_t) 0.0);
     isHoodActive = true;
 }
 
@@ -316,11 +366,11 @@ void Turret::startHood () {
 
 void Turret::stopHood () {
     // Disable the Hood and Stow (fully retract to allow Trench passage)
-    units::angle::turn_t hoodZeroPosition = (units::angle::turn_t) 0;
-
+    ctre::phoenix6::controls::PositionVoltage hoodRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0); 
+    // NOTE: Setting control PAST the zeroize point, since the hood DOES NOT fully retract at zeroize point
+    hoodMotor.SetControl(hoodRequest.WithPosition(-0.12_tr));   
+    //hoodMotor.SetControl(hoodRequest.WithPosition(0_tr));    // Hood does NOT fully tract at zeroized point 
     isHoodActive = false;
-    ctre::phoenix6::controls::MotionMagicDutyCycle hoodRequest{hoodZeroPosition};
-    hoodMotor.SetControl(hoodRequest);    
 }
 
 
@@ -334,8 +384,11 @@ double Turret::getShooterRPS (double distance) {
 
 void Turret::setShooterRPS (double rps) {
     // Set the motor speeds (FORWARD and REVERSE)
-    shooterForwardMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-rps});
-    shooterReverseMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)+rps});
+    ctre::phoenix6::controls::VelocityVoltage m_forwardRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
+    ctre::phoenix6::controls::VelocityVoltage m_reverseRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
+
+    shooterForwardMotor.SetControl(m_forwardRequest.WithVelocity((units::angular_velocity::turns_per_second_t) rps).WithFeedForward(0.5_V));
+    shooterReverseMotor.SetControl(m_reverseRequest.WithVelocity((units::angular_velocity::turns_per_second_t) -rps).WithFeedForward(0.5_V));
 }
 
 void Turret::startShooter () {
@@ -353,9 +406,12 @@ void Turret::stopShooter () {
 
 // *** FEEDER ***
 void Turret::setFeederRPS () {
-    // Set the motor speeds (FORWARD and REVERSE)
-    feederDualMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-m_feederRPS});
-    feederSingleMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t)-m_feederRPS});
+    // Set the motor speeds (DUAL and SINGLE)
+    ctre::phoenix6::controls::VelocityVoltage m_dualRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
+    ctre::phoenix6::controls::VelocityVoltage m_singleRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
+
+    feederDualMotor.SetControl(m_dualRequest.WithVelocity((units::angular_velocity::turns_per_second_t) m_feederRPS).WithFeedForward(0.5_V));
+    feederSingleMotor.SetControl(m_singleRequest.WithVelocity((units::angular_velocity::turns_per_second_t) m_feederRPS).WithFeedForward(0.5_V));   
 }
 
 void Turret::startFeeder () {
@@ -373,11 +429,9 @@ void Turret::stopFeeder () {
 
 // *** SPINDEXER ***
 void Turret::setSpindexerRPS () {
- 
-    ctre::phoenix6::controls::VelocityVoltage velocityControlRequest {(units::angular_velocity::turns_per_second_t) m_spindexerRPS};
- 
     // Set the motor speed
-    spindexerMotor.SetControl(velocityControlRequest);
+    ctre::phoenix6::controls::VelocityVoltage m_spindexerRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
+    spindexerMotor.SetControl(m_spindexerRequest.WithVelocity((units::angular_velocity::turns_per_second_t) -(m_spindexerRPS * m_spindexerGearRatio)).WithFeedForward(0.5_V));
 }
 
 void Turret::startSpindexer () {
@@ -386,6 +440,8 @@ void Turret::startSpindexer () {
 
 void Turret::stopSpindexer () {
     isSpindexerActive = false;
+
+
     spindexerMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) 0});
     spindexerMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
 }
