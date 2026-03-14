@@ -82,6 +82,8 @@ void RobotContainer::ConfigureChooser() {
   m_turret.m_cmdActionChooser.AddOption("HoodON",       "HoodON");
   m_turret.m_cmdActionChooser.AddOption("TurretOFF",    "TurretOFF");
   m_turret.m_cmdActionChooser.AddOption("TurretON",     "TurretON");
+  m_turret.m_cmdActionChooser.AddOption("TopEndOFF",    "TopEndOFF");
+  m_turret.m_cmdActionChooser.AddOption("TopEndON",     "TopEndON");
   frc::SmartDashboard::PutData(&m_turret.m_cmdActionChooser); 
 }
 

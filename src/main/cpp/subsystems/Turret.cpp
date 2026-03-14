@@ -33,18 +33,18 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     configTurretMotor.Slot0.kI = 0;     // no output for integrated error
     configTurretMotor.Slot0.kD = 0.1;   // A velocity error of 1 rps results in 0.1 V output   configTurretMotor.Slot0.kP = 1.2;
     // Motion Magic settings
-    // NOT TESTED configTurretMotor.MotionMagic.MotionMagicJerk = 2_tr_per_s_cu;  // Target jerk of rps/s/s 
-    configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;  // cruise velocity of turret
-    configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.12; // Speed per unit of voltage (rotations/sec/V)
-    configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V)
+    configTurretMotor.MotionMagic.MotionMagicAcceleration = 10000_tr_per_s_sq; // acceleration  (ramp)
+    configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
+    configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.003; // Speed per unit of voltage (rotations/sec/V)
+    configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
     // Apply Configuration 
     turretMotor.GetConfigurator().Apply(configTurretMotor);
 
  
     // Hood Motor (Position)
     configHoodMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake; 
-    configHoodMotor.Slot0.kP = 2.4;
-    configHoodMotor.Slot0.kI = 0.0;
+    configHoodMotor.Slot0.kP = 4.8;
+    configHoodMotor.Slot0.kI = 0.155;
     configHoodMotor.Slot0.kD = 0.1;
     hoodMotor.GetConfigurator().Apply(configHoodMotor);
 
@@ -180,6 +180,13 @@ void Turret::Periodic() {
         else if (cmdAction  == "IntakeOFF") {
             stopIntake();
         }  
+        else if (cmdAction  == "TopEndON") {
+            enableTopEndOperation();
+        } 
+        else if (cmdAction  == "TopEndOFF") {
+            disableTopEndOperation();
+        } 
+
         // Indicate the last command action, so it is NOT done again.
         m_lastCmdAction = cmdAction; 
     }
@@ -225,42 +232,46 @@ void Turret::Periodic() {
         // The turret angle will point to the target, compensating for robot heading.
         m_turretTargetAngle    = computeTurretAngleInDegrees(m_turretPose,
                                                              m_turretTarget );
-        // Adjust Turret Target Angle (if desired,include robot motion)
-        m_turretTargetAngle += m_turretTargetAngleDelta;
-
         m_turretTargetDistance = computeDistanceInMeters(m_turretPose.X().value(),
                                                          m_turretPose.Y().value(),
                                                          m_turretTarget.X().value(),
                                                          m_turretTarget.Y().value());
-        // Adjust Turret Target Angle (if desired, include robot motion)
-        m_turretTargetDistance += m_turretTargetDistanceDelta;
-                                                     
 
+                                                     
+        // **********
+        // Adjust the Turret Target Angle and Distance for the motion of the Robot
+        // Allow shooting while moving
+        // Adjust Turret Target Angle (if desired,include robot motion)
+        m_turretTargetAngle += m_turretTargetAngleDelta;
+        // Adjust Turret Target Distance (if desired, include robot motion)
+        m_turretTargetDistance += m_turretTargetDistanceDelta;    
+        // **********
 
         // ************************************************
         // Adjust the Turret Motors for Proper Operation
         // SET THE TURRET (if enabled) for proper shooting direction to the target
         if (isTurretActive) {
-            //setTurretPosition(m_turretTargetAngle);
-            // TBD
-            // Temporarily, just set RPS from variable, set by SmartDashboard
+            // *****
+            // Point Turret to the Requested Angle
+            // setTurretPosition(m_turretTargetAngle);
+            // *****
+
+            // TESTING - Temporarily, get angle from SmartDashboard variable
             setTurretPosition(m_turretAngle);
         }
         // SET THE HOOD (if enabled) for proper shooting angle to the target
         if (isHoodActive) {
-            // Determine hood RPS from distance table lookup
-            //m_hoodAngle = getHoodAngle (m_turretTargetDistance);
-            // TBD
-            // Temporarily, just set RPS from variable, set by SmartDashboard
-            setHoodPosition (m_hoodAngle);
+            // *****
+            // Determine hood angle from distance table lookup and Robot motion
+            double hoodAngle = getHoodAngle(m_turretTargetDistance) + getHoodAngleDelta (m_pose);
+            setHoodPosition (hoodAngle);
         }
         // SET THE SHOOTER (if enabled) for proper shooting speed to the target
         if (isShooterActive) {
-            // Determine shoot RPS from distance table lookup
-            m_shooterRPS = getShooterRPS (m_turretTargetDistance);
-            // TBD
-            // Temporarily, just set RPS from variable, set by SmartDashboard
-            setShooterRPS (m_shooterRPS);
+            // *****
+            // Get SHOOTER rps fom distance table lookup shoot RPS from distance table lookup
+            double shooterRPS = getShooterRPS(m_turretTargetDistance) + getShooterRPSDelta (m_pose);
+            setShooterRPS (shooterRPS);
         }
         // SET THE FEEDER (if enabled) for proper feeding to the shooter
         if (isFeederActive) { 
@@ -333,6 +344,33 @@ void Turret::stopTurret () {
 }
 
 
+double Turret::getHoodAngle (double distance) {
+    double hoodAngle = 0;
+
+    // Determine the hood angle from lookup table
+    // Convert Distance to SHOT SOLUTION MAP table entry index
+    int shotTableIndex = (int) ((distance / 3.0) * 10);           // 1/3 meter steps
+ 
+    // TESTING
+    shotTableIndex = 0;
+    // TESTING
+ 
+    if (shotTableIndex == 0) {
+        hoodAngle = m_hoodAngle;
+    } else {
+        ShotSolutionEntry shotSolution = m_shotSolutionMap[shotTableIndex];      
+        hoodAngle = shotSolution.hood_ANGLE;
+    }
+
+    return (hoodAngle);
+}
+
+double Turret::getHoodAngleDelta (frc::Pose2d robotPose) {
+    
+    // TBD - Determine Delta RPS from Robot Motion
+    return (m_hoodAngleDelta);
+}
+
 void Turret::setHoodPosition (double angle) {
     double reqAngle = angle;
     // Ensure angle NOT MORE than maximum
@@ -366,10 +404,8 @@ void Turret::startHood () {
 
 void Turret::stopHood () {
     // Disable the Hood and Stow (fully retract to allow Trench passage)
-    ctre::phoenix6::controls::PositionVoltage hoodRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0); 
-    // NOTE: Setting control PAST the zeroize point, since the hood DOES NOT fully retract at zeroize point
-    hoodMotor.SetControl(hoodRequest.WithPosition(-0.12_tr));   
-    //hoodMotor.SetControl(hoodRequest.WithPosition(0_tr));    // Hood does NOT fully tract at zeroized point 
+    ctre::phoenix6::controls::PositionVoltage hoodRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);   
+    hoodMotor.SetControl(hoodRequest.WithPosition(0_tr));  // Hood does NOT fully retract immediatly at zeroized point 
     isHoodActive = false;
 }
 
@@ -377,9 +413,30 @@ void Turret::stopHood () {
 
 // *** SHOOTER ***
 double Turret::getShooterRPS (double distance) {
-    // Look up RPS from Distance Table
-    // TBD
-    return (m_shooterRPS);
+   double shooterRPS = 0;
+
+    // Determine the hood angle from lookup table
+    // Convert Distance to SHOT SOLUTION MAP table entry index
+    int shotTableIndex = (int) ((distance / 3.0) * 10);           // 1/3 meter steps
+
+     // TESTING
+    shotTableIndex = 0;
+    // TESTING
+   
+    if (shotTableIndex == 0) {
+        shooterRPS = m_shooterRPS;
+    } else {
+        ShotSolutionEntry shotSolution = m_shotSolutionMap[shotTableIndex];      
+        shooterRPS = shotSolution.shooter_RPS;
+    }
+
+    return (shooterRPS);
+}
+
+double Turret::getShooterRPSDelta (frc::Pose2d robotPose) {
+    
+    // TBD - Determine Delta RPS from Robot Motion
+    return (m_shooterRPSDelta);
 }
 
 void Turret::setShooterRPS (double rps) {
@@ -570,6 +627,7 @@ void Turret::enableShooterOperation ()    { startShooter();   }
 void Turret::enableFeederOperation ()     { startFeeder();    }
 void Turret::enableSpindexerOperation ()  { startSpindexer(); }
 void Turret::enableIntakeOperation ()     { startIntake();    }
+void Turret::enableTopEndOperation ()     { startHood(); startShooter(); startFeeder(); startSpindexer();  }
 
 void Turret::disableTurretOperation ()    { stopTurret();     }
 void Turret::disableHoodOperation ()      { stopHood();       }
@@ -577,6 +635,9 @@ void Turret::disableShooterOperation ()   { stopShooter();    }
 void Turret::disableFeederOperation ()    { stopFeeder();     }
 void Turret::disableSpindexerOperation () { stopSpindexer();  }
 void Turret::disableIntakeOperation ()    { stopIntake();  }
+void Turret::disableTopEndOperation ()     { stopSpindexer(); stopFeeder(); stopShooter(); stopHood();  }
+
+
 
 frc2::CommandPtr Turret::cmdOnTurret()  {
     return RunOnce([this] { enableTurretOperation(); }).WithName("Enable Turret Operation");

@@ -65,8 +65,13 @@ class Turret : public frc2::SubsystemBase {
     double m_turretTargetDistance;
     double m_turretTargetDistanceDelta;
 
+    // Hood Angle 
+    double m_hoodAngle = 10.0;
+    double m_hoodAngleDelta = 0.0;
+
     // RPS Setting for Shooter Motors (TBD)  (Forward +value, Reverse -value)
     double m_shooterRPS = 2.0;
+    double m_shooterRPSDelta = 0.0;
 
     // RPS Setting for Feeder Motors (TBD)
     double m_feederRPS = 3.0;
@@ -113,7 +118,7 @@ class Turret : public frc2::SubsystemBase {
     ctre::phoenix6::configs::TalonFXConfiguration configHoodMotor{};
    
     double m_hoodTurns = 0;
-    double m_hoodAngle = 10.0;    // Testing
+   
     double m_MinHoodAngle = 10.0; // MIN (Ten Degrees) is Fully Retracted
     double m_MaxHoodAngle = 45.0; // MAX TBD is fully extended
 
@@ -189,18 +194,86 @@ class Turret : public frc2::SubsystemBase {
 
                     
     // ****************************************
+    struct ShotSolutionEntry {
+      double shooter_RPS;
+      double hood_ANGLE;
+    };
+    // ***** 
+    // Robot Shooting Solutions (SHOOTER RPS, and HOOD ANGLE) using Distance (in meters)
+    //  
+    // MAP INDEX - Range from 0 to INT (distance * 3), so each entry is 1/3 meter
+    // *****
+    const int MAX_SHOTMAP_INDEX = 50;
+    map<int32_t, ShotSolutionEntry> m_shotSolutionMap = {
+        { 0, { 0.0,     0.0 }},       // Distance = ZERO, Use SmartDashboard Variables m_ShooterRPS, m_hoodAngle.
+        { 1, { 0.0,    15.0 }},
+        { 2, { 5.0,    15.0 }},
+        { 3, { 5.0,    15.0 }},
+        { 4, { 5.0,    15.0 }},
+        { 5, { 5.0,    15.0 }},
+        { 6, { 5.0,    15.0 }},
+        { 7, { 5.0,    15.0 }},
+        { 8, { 5.0,    15.0 }},
+        { 9, { 5.0,    15.0 }},
+        {10, { 5.0,    15.0 }},
+        {11, { 5.0,    15.0 }},
+        {12, { 5.0,    15.0 }},
+        {13, { 5.0,    15.0 }},
+        {14, { 5.0,    15.0 }},
+        {15, { 5.0,    15.0 }},
+        {16, { 5.0,    15.0 }},
+        {17, { 5.0,    15.0 }},
+        {18, { 5.0,    15.0 }},
+        {19, { 5.0,    15.0 }},
+        {20, { 5.0,    15.0 }},
+        {21, { 5.0,    15.0 }},
+        {22, { 5.0,    15.0 }},
+        {23, { 5.0,    15.0 }},
+        {24, { 5.0,    15.0 }},
+        {25, { 5.0,    15.0 }},
+        {26, { 5.0,    15.0 }},
+        {27, { 5.0,    15.0 }},
+        {28, { 5.0,    15.0 }},
+        {29, { 5.0,    15.0 }},
+        {30, { 5.0,    15.0 }},
+        {31, { 5.0,    15.0 }},
+        {32, { 5.0,    15.0 }},
+        {33, { 5.0,    15.0 }},
+        {34, { 5.0,    15.0 }},
+        {35, { 5.0,    15.0 }},
+        {36, { 5.0,    15.0 }},
+        {37, { 5.0,    15.0 }},
+        {38, { 5.0,    15.0 }},
+        {39, { 5.0,    15.0 }},
+        {40, { 5.0,    15.0 }},
+        {41, { 5.0,    15.0 }},
+        {42, { 5.0,    15.0 }},
+        {43, { 5.0,    15.0 }},
+        {44, { 5.0,    15.0 }},
+        {45, { 5.0,    15.0 }},
+        {46, { 5.0,    15.0 }},
+        {46, { 5.0,    15.0 }},
+        {47, { 5.0,    15.0 }},
+        {48, { 5.0,    15.0 }},
+        {49, { 5.0,    15.0 }},
+        {50, { 10.0,   50.5 }}
+    };
+
 
     void setTurretPosition (double angle);
     void zeroizeTurretPosition ();
     void startTurret ();
     void stopTurret ();
 
+    double getHoodAngle (double distance);
+    double getHoodAngleDelta(frc::Pose2d robotPose);
     void setHoodPosition (double angle);   // Valid Hood angles are 10 degrees (retacted)  - N degrees (fully extended).  
     void zeroizeHoodPosition ();           // Zeroized is fully retracted which is 10 degree angle
     void startHood ();
     void stopHood ();
 
     double getShooterRPS(double distance);
+    double getShooterRPSDelta(frc::Pose2d robotPose);
     void setShooterRPS (double rps);
     void startShooter ();
     void stopShooter ();
@@ -230,6 +303,7 @@ class Turret : public frc2::SubsystemBase {
     void enableFeederOperation ();
     void enableSpindexerOperation ();
     void enableIntakeOperation ();
+    void enableTopEndOperation ();
 
     void disableTurretOperation ();
     void disableHoodOperation ();
@@ -237,5 +311,6 @@ class Turret : public frc2::SubsystemBase {
     void disableFeederOperation ();
     void disableSpindexerOperation (); 
     void disableIntakeOperation ();
+    void disableTopEndOperation ();
     
 };
