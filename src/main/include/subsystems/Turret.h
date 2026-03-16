@@ -14,6 +14,7 @@
 #include "ctre/phoenix6/controls/VelocityVoltage.hpp"
 #include "ctre/phoenix6/controls/PositionVoltage.hpp"
 #include <ctre/phoenix6/configs/MotionMagicConfigs.hpp>
+#include <ctre/phoenix/StatusCodes.h>
 
 #include "Swerve.h"
 
@@ -57,6 +58,7 @@ class Turret : public frc2::SubsystemBase {
 
     // Indicates whether the Turret Target Pose has been SET
     bool m_turretTargetSet;
+    int  m_shotTableIndex = 1;
 
     // Turret Angle to the currently selected target 
     double m_turretTargetAngle;
@@ -102,12 +104,24 @@ class Turret : public frc2::SubsystemBase {
   private:
     frc2::CommandGenericHID *xkeys;
 
+    // Shot Table Enable Flag
+    bool m_isShotTableEnabled = true;
+    
+    // Variable to assist in limiting when motors get commanded
+    bool   m_isTurretClassConfigComplete = false;
+    double m_lastCmdTurretAngle = 0;   
+    bool   m_lastCmdIsSmallAngle = true; 
+    double m_lastCmdHoodAngle = 0;   
+    double m_lastCmdShooterRPS = 0;
+    double m_lastCmdFeederRPS = 0;
+    double m_lastCmdSpindexerRPS = 0;
+
     // **********************
     // Turret Related Motors
     // Turret Motor (Position - -VAL to ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX turretMotor{41, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configTurretMotor{};
-  
+
     double m_turretTurns = 0;
     double m_turretAngle = 0.0;   // Testing
     double m_MinTurretAngle = -120.0; // MIN CCW
@@ -115,12 +129,11 @@ class Turret : public frc2::SubsystemBase {
 
     // Hood Motor (Position - ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX hoodMotor{42, ctre::phoenix6::CANBus("Main CAN")};
-    ctre::phoenix6::configs::TalonFXConfiguration configHoodMotor{};
-   
+    ctre::phoenix6::configs::TalonFXConfiguration configHoodMotor{};  
+
     double m_hoodTurns = 0;
-   
     double m_MinHoodAngle = 10.0; // MIN (Ten Degrees) is Fully Retracted
-    double m_MaxHoodAngle = 45.0; // MAX TBD is fully extended
+    double m_MaxHoodAngle = 50.0; // MAX TBD is fully extended
 
     // Shooter Motors (Variable Speed) IDENTICAL SPEED, OPPOSITE DIRECTION
     // REVERSE
@@ -197,66 +210,39 @@ class Turret : public frc2::SubsystemBase {
     struct ShotSolutionEntry {
       double shooter_RPS;
       double hood_ANGLE;
+      double feeder_RPS;
+      double spindexer_RPS;
     };
     // ***** 
     // Robot Shooting Solutions (SHOOTER RPS, and HOOD ANGLE) using Distance (in meters)
     //  
     // MAP INDEX - Range from 0 to INT (distance * 3), so each entry is 1/3 meter
+    // Shots are expected from 3 meters to 8 meters ONLY.
     // *****
     const int MAX_SHOTMAP_INDEX = 50;
     map<int32_t, ShotSolutionEntry> m_shotSolutionMap = {
-        { 0, { 0.0,     0.0 }},       // Distance = ZERO, Use SmartDashboard Variables m_ShooterRPS, m_hoodAngle.
-        { 1, { 0.0,    15.0 }},
-        { 2, { 5.0,    15.0 }},
-        { 3, { 5.0,    15.0 }},
-        { 4, { 5.0,    15.0 }},
-        { 5, { 5.0,    15.0 }},
-        { 6, { 5.0,    15.0 }},
-        { 7, { 5.0,    15.0 }},
-        { 8, { 5.0,    15.0 }},
-        { 9, { 5.0,    15.0 }},
-        {10, { 5.0,    15.0 }},
-        {11, { 5.0,    15.0 }},
-        {12, { 5.0,    15.0 }},
-        {13, { 5.0,    15.0 }},
-        {14, { 5.0,    15.0 }},
-        {15, { 5.0,    15.0 }},
-        {16, { 5.0,    15.0 }},
-        {17, { 5.0,    15.0 }},
-        {18, { 5.0,    15.0 }},
-        {19, { 5.0,    15.0 }},
-        {20, { 5.0,    15.0 }},
-        {21, { 5.0,    15.0 }},
-        {22, { 5.0,    15.0 }},
-        {23, { 5.0,    15.0 }},
-        {24, { 5.0,    15.0 }},
-        {25, { 5.0,    15.0 }},
-        {26, { 5.0,    15.0 }},
-        {27, { 5.0,    15.0 }},
-        {28, { 5.0,    15.0 }},
-        {29, { 5.0,    15.0 }},
-        {30, { 5.0,    15.0 }},
-        {31, { 5.0,    15.0 }},
-        {32, { 5.0,    15.0 }},
-        {33, { 5.0,    15.0 }},
-        {34, { 5.0,    15.0 }},
-        {35, { 5.0,    15.0 }},
-        {36, { 5.0,    15.0 }},
-        {37, { 5.0,    15.0 }},
-        {38, { 5.0,    15.0 }},
-        {39, { 5.0,    15.0 }},
-        {40, { 5.0,    15.0 }},
-        {41, { 5.0,    15.0 }},
-        {42, { 5.0,    15.0 }},
-        {43, { 5.0,    15.0 }},
-        {44, { 5.0,    15.0 }},
-        {45, { 5.0,    15.0 }},
-        {46, { 5.0,    15.0 }},
-        {46, { 5.0,    15.0 }},
-        {47, { 5.0,    15.0 }},
-        {48, { 5.0,    15.0 }},
-        {49, { 5.0,    15.0 }},
-        {50, { 10.0,   50.5 }}
+        { 3, { 48.0,    14.0,   50,   20  }},    // 1 meters
+        { 4, { 48.7,    16.0,   50,   20  }},
+        { 5, { 49.3,    18.0,   50,   20  }},
+        { 6, { 50.0,    20.0,   50,   20  }},    // 2 meters
+        { 7, { 51.3,    22.6,   50,   20  }},
+        { 8, { 52.6,    25.3,   50,   20  }},
+        { 9, { 54.0,    28.0,   50,   20  }},    // 3 meters
+        {10, { 56.0,    29.0,   50,   20  }},
+        {11, { 58.0,    30.0,   50,   20  }},
+        {12, { 60.0,    31.0,   50,   20  }},    // 4 meters
+        {13, { 63.0,    31.6,   50,   20  }},
+        {14, { 66.0,    32.2,   50,   20  }},
+        {15, { 69.0,    33.0,   50,   20  }},    // 5 meters
+        {16, { 72.0,    33.7,   50,   20  }},
+        {17, { 75.0,    34.3,   50,   20  }},
+        {18, { 78.0,    35.0,   50,   20  }},    // 6 meters
+        {19, { 81.3,    35.7,   50,   20  }},
+        {20, { 84.6,    36.4,   50,   20  }},
+        {21, { 88.0,    37.0,   50,   20  }},    // 7 meters
+        {22, { 92.0,    39.0,   50,   20  }},
+        {23, { 96.0,    41.0,   50,   20  }},
+        {24, { 100.0,   43.0,   50,   20  }}    // 8 meters
     };
 
 
@@ -265,28 +251,32 @@ class Turret : public frc2::SubsystemBase {
     void startTurret ();
     void stopTurret ();
 
-    double getHoodAngle (double distance);
+    double getHoodAngle (int shotTableIndex);
     double getHoodAngleDelta(frc::Pose2d robotPose);
     void setHoodPosition (double angle);   // Valid Hood angles are 10 degrees (retacted)  - N degrees (fully extended).  
     void zeroizeHoodPosition ();           // Zeroized is fully retracted which is 10 degree angle
     void startHood ();
     void stopHood ();
 
-    double getShooterRPS(double distance);
+    double getShooterRPS(int shotTableIndex);
     double getShooterRPSDelta(frc::Pose2d robotPose);
     void setShooterRPS (double rps);
     void startShooter ();
     void stopShooter ();
 
-    void setFeederRPS ();
+    double getFeederRPS(int shotTableIndex);
+    double getShooterRPSDelta();
+    void setFeederRPS (double rps);
     void startFeeder ();
     void stopFeeder ();
    
-    void setSpindexerRPS ();
+    double getSpindexerRPS(int shotTableIndex);
+    double getSpindexerRPSDelta();
+    void setSpindexerRPS (double rps);
     void startSpindexer ();
     void stopSpindexer ();
 
-    void setIntakeRPM ();
+    void setIntakeRPS ();
     void zeroizeIntakePosition ();
     void startIntake ();
     void stopIntake ();

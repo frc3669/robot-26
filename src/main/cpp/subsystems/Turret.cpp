@@ -2,6 +2,7 @@
 #include <frc2/command/Commands.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DriverStation.h>
+#include <math.h>
 #include <thread>
 
 
@@ -33,10 +34,17 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     configTurretMotor.Slot0.kI = 0;     // no output for integrated error
     configTurretMotor.Slot0.kD = 0.1;   // A velocity error of 1 rps results in 0.1 V output   configTurretMotor.Slot0.kP = 1.2;
     // Motion Magic settings
-    configTurretMotor.MotionMagic.MotionMagicAcceleration = 10000_tr_per_s_sq; // acceleration  (ramp)
-    configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
-    configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.003; // Speed per unit of voltage (rotations/sec/V)
-    configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
+    // SMALL ANGLE configuration settings
+    configTurretMotor.MotionMagic.MotionMagicAcceleration = 0_tr_per_s_sq; // acceleration  (ramp)
+    configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;       // velocity  (once ramp up)
+    configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.12; // Speed per unit of voltage (rotations/sec/V)
+    configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V) 
+    // LARGE ANGLE configuration settings
+    //configTurretMotor.MotionMagic.MotionMagicAcceleration = 10000_tr_per_s_sq; // acceleration  (ramp)
+    //configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
+    //configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.003; // Speed per unit of voltage (rotations/sec/V)
+    //configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
+ 
     // Apply Configuration 
     turretMotor.GetConfigurator().Apply(configTurretMotor);
 
@@ -119,6 +127,9 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     frc::SmartDashboard::PutNumber("FeederRPS",  m_feederRPS);
     frc::SmartDashboard::PutNumber("SpindexerRPS", m_spindexerRPS);
     frc::SmartDashboard::PutNumber("IntakeRPM", m_intakeRPM);
+
+    // Force Commands to go out to each motor
+    m_isTurretClassConfigComplete = true;
 }  
  
 void Turret::SimulationPeriodic() {}
@@ -186,41 +197,30 @@ void Turret::Periodic() {
         else if (cmdAction  == "TopEndOFF") {
             disableTopEndOperation();
         } 
-
+        else if (cmdAction  == "ShotTableON") {
+            m_isShotTableEnabled = true;
+        } 
+        else if (cmdAction  == "ShotTableOFF") {
+            m_isShotTableEnabled = false;
+        } 
         // Indicate the last command action, so it is NOT done again.
         m_lastCmdAction = cmdAction; 
     }
 
+    // Get current settings, in case manual operation in effect
     m_turretAngle = frc::SmartDashboard::GetNumber("TurretANGLE", 0.0);
-    frc::SmartDashboard::PutNumber("TurretANGLE", m_turretAngle);    
-    frc::SmartDashboard::PutNumber("TurretTURNS", m_turretTurns);
-
     m_hoodAngle = frc::SmartDashboard::GetNumber("HoodANGLE", 0.0);
-    frc::SmartDashboard::PutNumber("HoodANGLE", m_hoodAngle);
-    frc::SmartDashboard::PutNumber("HoodTURNS", m_hoodTurns);
-  
     m_shooterRPS = frc::SmartDashboard::GetNumber("ShooterRPS", 10.0);
-    frc::SmartDashboard::PutNumber("shootRPS", m_shooterRPS);
-
     m_feederRPS = frc::SmartDashboard::GetNumber("FeederRPS", 3.4);
-    frc::SmartDashboard::PutNumber("feedRPS", m_feederRPS);
-
     m_spindexerRPS = frc::SmartDashboard::GetNumber("SpindexerRPS", 3.4);
-    frc::SmartDashboard::PutNumber("spinRPS", m_spindexerRPS);
+    m_intakeRPS = frc::SmartDashboard::GetNumber("IntakeRPS", 10.0);
 
-    m_intakeRPM = frc::SmartDashboard::GetNumber("IntakeRPM", 10.0);
-    frc::SmartDashboard::PutNumber("intakeRPM", m_intakeRPM);
-
-    frc::SmartDashboard::PutNumber("shooterRPS", m_shooterRPS);
-    frc::SmartDashboard::PutNumber("feederRPS", m_feederRPS);
-    frc::SmartDashboard::PutNumber("spindexerRPS", m_spindexerRPS);
-    frc::SmartDashboard::PutNumber("intakeRPS", m_intakeRPS);
 
 
     // ****************************************
     // Determine Turret Angle and Distance to the Target
     // (Since Turret Target has been Identified) 
-    if (m_turretTargetSet)
+    if (m_isTurretClassConfigComplete)
     {
         // Get the current robot pose
         frc::Pose2d  m_pose = m_drivePtr->getPose();
@@ -247,45 +247,87 @@ void Turret::Periodic() {
         m_turretTargetDistance += m_turretTargetDistanceDelta;    
         // **********
 
+        // Convert Distance to SHOT SOLUTION MAP table entry index
+        m_shotTableIndex = (int) ((m_turretTargetDistance / 3.0) * 10);     // 1/3 meter steps
+        if (m_shotTableIndex <  3) m_shotTableIndex = 3;
+        if (m_shotTableIndex > 24) m_shotTableIndex = 24;
+
+
+
         // ************************************************
         // Adjust the Turret Motors for Proper Operation
         // SET THE TURRET (if enabled) for proper shooting direction to the target
         if (isTurretActive) {
-            // *****
-            // Point Turret to the Requested Angle
-            // setTurretPosition(m_turretTargetAngle);
-            // *****
 
-            // TESTING - Temporarily, get angle from SmartDashboard variable
-            setTurretPosition(m_turretAngle);
+            // Determine turret angle 
+            // double turretAngle = m_turretTargetAngle;   // LIVE OPERATION
+            double turretAngle = m_turretAngle;            // TESTING - Use SmartDashboard variable
+
+           // Limit Turret Angle changes to >= 0.2 degrees
+           if (units::math::abs<units::degree_t>((units::degree_t)(turretAngle - m_lastCmdTurretAngle)) >= 0.2_deg) 
+            {           
+               // Point Turret to the Requested Angle
+               setTurretPosition(turretAngle);
+               m_lastCmdTurretAngle = turretAngle;
+            }       
         }
         // SET THE HOOD (if enabled) for proper shooting angle to the target
         if (isHoodActive) {
-            // *****
-            // Determine hood angle from distance table lookup and Robot motion
-            double hoodAngle = getHoodAngle(m_turretTargetDistance) + getHoodAngleDelta (m_pose);
-            setHoodPosition (hoodAngle);
+ 
+            // Get hood angle from distance table lookup and Robot motion
+            double hoodAngle = getHoodAngle(m_shotTableIndex);
+
+            // Limit Hood Angle changes to >= 0.2 degrees
+           if (units::math::abs<units::degree_t>((units::degree_t)(hoodAngle - m_lastCmdHoodAngle)) >= 0.2_deg)      
+           {
+              setHoodPosition (hoodAngle);
+              m_lastCmdHoodAngle = hoodAngle;
+           }
         }
         // SET THE SHOOTER (if enabled) for proper shooting speed to the target
         if (isShooterActive) {
-            // *****
-            // Get SHOOTER rps fom distance table lookup shoot RPS from distance table lookup
-            double shooterRPS = getShooterRPS(m_turretTargetDistance) + getShooterRPSDelta (m_pose);
-            setShooterRPS (shooterRPS);
+            
+            // Get SHOOTER rps fom distance table lookup
+            double shooterRPS = getShooterRPS(m_shotTableIndex);
+
+            // Limit Shooter changes to >= 0.2 RPS
+            if (units::math::abs<units::degree_t>((units::degree_t)(shooterRPS - m_lastCmdShooterRPS)) >= 0.2_deg) 
+            {       
+                setShooterRPS (shooterRPS);
+                m_lastCmdShooterRPS = shooterRPS;
+            }
         }
         // SET THE FEEDER (if enabled) for proper feeding to the shooter
         if (isFeederActive) { 
-            setFeederRPS ();
+
+            // Get FEEDER rps fom distance table lookup
+            double feederRPS = getFeederRPS(m_shotTableIndex);
+
+            // Limit Feeder changes to >= 0.2 RPS
+            if (units::math::abs<units::degree_t>((units::degree_t)(feederRPS - m_lastCmdFeederRPS)) >= 0.2_deg) 
+            {       
+                setFeederRPS (feederRPS);
+                m_lastCmdFeederRPS = feederRPS;
+            }
         }
  
         // SET THE SPINDEXER (if enabled) for proper feeding into the shooter
-        if (isSpindexerActive) {         
-            setSpindexerRPS ();
+        if (isSpindexerActive) {  
+            
+            // Get SPINDEXER rps fom distance table lookup
+            double spindexerRPS = getSpindexerRPS(m_shotTableIndex);           
+
+            // Limit Feeder changes to >= 0.2 RPS
+            if (units::math::abs<units::degree_t>((units::degree_t)(spindexerRPS - m_lastCmdSpindexerRPS)) >= 0.2_deg) 
+            {       
+                setSpindexerRPS (spindexerRPS);
+                m_lastCmdSpindexerRPS = spindexerRPS;
+            }            
         }
 
         // SET THE INTAKE (if enabled) for proper intake into the Spindexer
         if (isIntakeActive) {         
-            setIntakeRPM ();
+            setIntakeRPS ();
         }      
     }
     // ****************************************       
@@ -294,10 +336,10 @@ void Turret::Periodic() {
     frc::SmartDashboard::PutNumber("TurretTargetX", m_turretTarget.X().value());  
     frc::SmartDashboard::PutNumber("TurretTargetY", m_turretTarget.Y().value());  
  
-    frc::SmartDashboard::PutNumber("TurretX", m_turretPose.X().value());  
-    frc::SmartDashboard::PutNumber("TurretY", m_turretPose.Y().value());    
-    frc::SmartDashboard::PutNumber("TurretAngle", m_turretTargetAngle);  
-    frc::SmartDashboard::PutNumber("TurretDistance", m_turretTargetDistance);  
+    frc::SmartDashboard::PutNumber("TurretPoseX", m_turretPose.X().value());  
+    frc::SmartDashboard::PutNumber("TurretPoseY", m_turretPose.Y().value());    
+    frc::SmartDashboard::PutNumber("TurretTgtAngle", m_turretTargetAngle);  
+    frc::SmartDashboard::PutNumber("TurretTgtDistance", m_turretTargetDistance);  
     // ****************************************
 }
 
@@ -306,6 +348,15 @@ void Turret::Periodic() {
 //
 // *** TURRET ***
  void Turret::setTurretPosition (double angle) {
+
+    // *****
+    // Determine whether SMALL or LARGE angle change (> TBD degrees, e.g. 45) for the turret
+    bool isSmallAngle = true;
+    if (units::math::abs<units::degree_t>((units::degree_t)(angle - m_lastCmdTurretAngle)) >= 45.0_deg) {
+        isSmallAngle = false;  // TRUE by default
+    }
+    // NOTE: Update LAST commanded angle information after information has been used. (See Below)
+    // *****
 
     // NOTE: angle is for CCW coordinate system.
     // NOTE: turns for motor need to go the opposite direction
@@ -321,8 +372,37 @@ void Turret::Periodic() {
     }
  
     double mechRotations = reqAngle / 360.0;
-    m_turretTurns = mechRotations * m_turretGearRatio;
-    units::angle::turn_t turns = (units::angle::turn_t) m_turretTurns;
+    double turretTurns = mechRotations * m_turretGearRatio;
+    units::angle::turn_t turns = (units::angle::turn_t) turretTurns;
+
+    // ***** REFRESH Motor Configuration (AS NEEDED ONLY) for SMALL or LARGE angle operation.
+    if (isSmallAngle) {
+       // Refresh config for SMALL angle configuration (was LARGE previously)
+       configTurretMotor.MotionMagic.MotionMagicAcceleration = 0_tr_per_s_sq; // acceleration  (ramp)
+       configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;       // velocity  (once ramp up)
+       configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.12; // Speed per unit of voltage (rotations/sec/V)
+       configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V) 
+       ctre::phoenix::StatusCode Sstatus = turretMotor.GetConfigurator().Refresh(configTurretMotor);
+       frc::SmartDashboard::PutNumber("S-StatusCode", Sstatus);  
+       frc::SmartDashboard::PutString("S-StatusCodeName", Sstatus.GetName());  
+       frc::SmartDashboard::PutString("S-StatusCodeName", Sstatus.GetDescription()); 
+       // Display Status Code on SmartDashboard
+    } 
+    else {
+       // Refresh config for LARGE angle configuration (was SMALL previously)
+       configTurretMotor.MotionMagic.MotionMagicAcceleration = 11000_tr_per_s_sq; // acceleration  (ramp)
+       configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
+       configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.003; // Speed per unit of voltage (rotations/sec/V)
+       configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
+       ctre::phoenix::StatusCode Lstatus = turretMotor.GetConfigurator().Refresh(configTurretMotor);
+       frc::SmartDashboard::PutNumber("L-StatusCode", Lstatus);  
+       frc::SmartDashboard::PutString("L-StatusCodeName", Lstatus.GetName());  
+       frc::SmartDashboard::PutString("L-StatusCodeName", Lstatus.GetDescription());        
+    }
+    // Update LAST commanded angle information with CURRENT information
+    m_lastCmdIsSmallAngle = isSmallAngle;
+    // ***** REFRESH Motor Configuration (AS NEEDED ONLY)
+    frc::SmartDashboard::PutNumber("TurretANGLE", angle);
 
     ctre::phoenix6::controls::MotionMagicExpoVoltage m_turretRequest{0_tr};
     // Move the turret the desired number of turns, matching the requested angle
@@ -336,6 +416,7 @@ void Turret::Periodic() {
  }
 
 void Turret::startTurret () {
+    m_lastCmdTurretAngle -= 1;  // Force Turret to be newly commanded
     isTurretActive = true;
 }
 
@@ -344,23 +425,16 @@ void Turret::stopTurret () {
 }
 
 
-double Turret::getHoodAngle (double distance) {
+double Turret::getHoodAngle (int shotTableIndex) {
     double hoodAngle = 0;
 
-    // Determine the hood angle from lookup table
-    // Convert Distance to SHOT SOLUTION MAP table entry index
-    int shotTableIndex = (int) ((distance / 3.0) * 10);           // 1/3 meter steps
- 
-    // TESTING
-    shotTableIndex = 0;
-    // TESTING
- 
-    if (shotTableIndex == 0) {
-        hoodAngle = m_hoodAngle;
+    if (!m_isShotTableEnabled) {
+        hoodAngle = m_hoodAngle;  // Use SmartDashboard variable
     } else {
         ShotSolutionEntry shotSolution = m_shotSolutionMap[shotTableIndex];      
         hoodAngle = shotSolution.hood_ANGLE;
     }
+    frc::SmartDashboard::PutNumber("HoodANGLE", hoodAngle);
 
     return (hoodAngle);
 }
@@ -395,6 +469,7 @@ void Turret::setHoodPosition (double angle) {
 void Turret::zeroizeHoodPosition () {
     // ASSUMES THE HOOD IS FULLY LOWERED (NOT EXTENDED)
     hoodMotor.SetPosition ((units::angle::turn_t) 0.0);
+    m_lastCmdHoodAngle = 10; 
     isHoodActive = true;
 }
 
@@ -406,29 +481,23 @@ void Turret::stopHood () {
     // Disable the Hood and Stow (fully retract to allow Trench passage)
     ctre::phoenix6::controls::PositionVoltage hoodRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);   
     hoodMotor.SetControl(hoodRequest.WithPosition(0_tr));  // Hood does NOT fully retract immediatly at zeroized point 
+    m_lastCmdHoodAngle = 10; 
     isHoodActive = false;
 }
 
 
 
 // *** SHOOTER ***
-double Turret::getShooterRPS (double distance) {
-   double shooterRPS = 0;
-
-    // Determine the hood angle from lookup table
-    // Convert Distance to SHOT SOLUTION MAP table entry index
-    int shotTableIndex = (int) ((distance / 3.0) * 10);           // 1/3 meter steps
-
-     // TESTING
-    shotTableIndex = 0;
-    // TESTING
+double Turret::getShooterRPS (int shotTableIndex) {
+    double shooterRPS = 0;
    
-    if (shotTableIndex == 0) {
-        shooterRPS = m_shooterRPS;
+    if (!m_isShotTableEnabled) {
+        shooterRPS = m_shooterRPS;  // Use SmartDashboard variable
     } else {
         ShotSolutionEntry shotSolution = m_shotSolutionMap[shotTableIndex];      
         shooterRPS = shotSolution.shooter_RPS;
     }
+    frc::SmartDashboard::PutNumber("ShooterRPS", shooterRPS);
 
     return (shooterRPS);
 }
@@ -459,16 +528,32 @@ void Turret::stopShooter () {
 
     shooterForwardMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
     shooterReverseMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
+    m_lastCmdShooterRPS = 0; 
 }
 
 // *** FEEDER ***
-void Turret::setFeederRPS () {
+// *** SHOOTER ***
+double Turret::getFeederRPS (int shotTableIndex) {
+    double feederRPS = 0;
+   
+    if (!m_isShotTableEnabled) {
+        feederRPS = m_feederRPS;   // Use SmartDashboard variable
+    } else {
+        ShotSolutionEntry shotSolution = m_shotSolutionMap[shotTableIndex];      
+        feederRPS = shotSolution.feeder_RPS;
+    }
+    frc::SmartDashboard::PutNumber("FeederRPS", feederRPS);
+
+    return (feederRPS);
+}
+
+void Turret::setFeederRPS (double feederRPS) {
     // Set the motor speeds (DUAL and SINGLE)
     ctre::phoenix6::controls::VelocityVoltage m_dualRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
     ctre::phoenix6::controls::VelocityVoltage m_singleRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
 
-    feederDualMotor.SetControl(m_dualRequest.WithVelocity((units::angular_velocity::turns_per_second_t) m_feederRPS).WithFeedForward(0.5_V));
-    feederSingleMotor.SetControl(m_singleRequest.WithVelocity((units::angular_velocity::turns_per_second_t) m_feederRPS).WithFeedForward(0.5_V));   
+    feederDualMotor.SetControl(m_dualRequest.WithVelocity((units::angular_velocity::turns_per_second_t) feederRPS).WithFeedForward(0.5_V));
+    feederSingleMotor.SetControl(m_singleRequest.WithVelocity((units::angular_velocity::turns_per_second_t) feederRPS).WithFeedForward(0.5_V));   
 }
 
 void Turret::startFeeder () {
@@ -482,13 +567,28 @@ void Turret::stopFeeder () {
 
     feederDualMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
     feederSingleMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
+    m_lastCmdFeederRPS = 0; 
 }
 
 // *** SPINDEXER ***
-void Turret::setSpindexerRPS () {
+double Turret::getSpindexerRPS (int shotTableIndex) {
+    double spindexerRPS = 0;
+
+    if (!m_isShotTableEnabled) {
+        spindexerRPS = m_spindexerRPS;  // Use SmartDashboard variable
+    } else {
+        ShotSolutionEntry shotSolution = m_shotSolutionMap[shotTableIndex];      
+        spindexerRPS = shotSolution.spindexer_RPS;
+    }
+    frc::SmartDashboard::PutNumber("SpindexerRPS", spindexerRPS);
+
+    return (spindexerRPS);
+}
+
+void Turret::setSpindexerRPS (double spindexerRPS) {
     // Set the motor speed
     ctre::phoenix6::controls::VelocityVoltage m_spindexerRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
-    spindexerMotor.SetControl(m_spindexerRequest.WithVelocity((units::angular_velocity::turns_per_second_t) -(m_spindexerRPS * m_spindexerGearRatio)).WithFeedForward(0.5_V));
+    spindexerMotor.SetControl(m_spindexerRequest.WithVelocity((units::angular_velocity::turns_per_second_t) -(spindexerRPS * m_spindexerGearRatio)).WithFeedForward(0.5_V));
 }
 
 void Turret::startSpindexer () {
@@ -498,13 +598,13 @@ void Turret::startSpindexer () {
 void Turret::stopSpindexer () {
     isSpindexerActive = false;
 
-
     spindexerMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) 0});
     spindexerMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
+    m_lastCmdSpindexerRPS = 0; 
 }
 
 // *** INTAKE ***
-void Turret::setIntakeRPM () {
+void Turret::setIntakeRPS () {
     // Convert RevolutionsPerMinute (RPM) to RevolutiuonsPerSecond (RPS)
     double rpm = m_intakeRPM;   // FIXED RPM
     double motorRPM = rpm * m_intakeGearRatio;
@@ -530,7 +630,7 @@ void Turret::startIntake () {
     ctre::phoenix6::controls::MotionMagicDutyCycle extendRequest{intakeDeployPosition};
     deployMotor.SetControl(extendRequest);      
     
-    setIntakeRPM ();
+    setIntakeRPS ();
 }
 
 void Turret::stopIntake () {
