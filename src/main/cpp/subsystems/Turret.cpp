@@ -382,10 +382,11 @@ void Turret::Periodic() {
        configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;       // velocity  (once ramp up)
        configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.12; // Speed per unit of voltage (rotations/sec/V)
        configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V) 
-       ctre::phoenix::StatusCode Sstatus = turretMotor.GetConfigurator().Refresh(configTurretMotor);
+       ctre::phoenix::StatusCode Sstatus = turretMotor.GetConfigurator().Apply(configTurretMotor.MotionMagic);
        frc::SmartDashboard::PutNumber("S-StatusCode", Sstatus);  
        frc::SmartDashboard::PutString("S-StatusCodeName", Sstatus.GetName());  
-       frc::SmartDashboard::PutString("S-StatusCodeName", Sstatus.GetDescription()); 
+       frc::SmartDashboard::PutString("S-StatusCodeDesc", Sstatus.GetDescription()); 
+       
        // Display Status Code on SmartDashboard
     } 
     else {
@@ -394,10 +395,10 @@ void Turret::Periodic() {
        configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
        configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.003; // Speed per unit of voltage (rotations/sec/V)
        configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
-       ctre::phoenix::StatusCode Lstatus = turretMotor.GetConfigurator().Refresh(configTurretMotor);
+       ctre::phoenix::StatusCode Lstatus = turretMotor.GetConfigurator().Apply(configTurretMotor.MotionMagic);   
        frc::SmartDashboard::PutNumber("L-StatusCode", Lstatus);  
        frc::SmartDashboard::PutString("L-StatusCodeName", Lstatus.GetName());  
-       frc::SmartDashboard::PutString("L-StatusCodeName", Lstatus.GetDescription());        
+       frc::SmartDashboard::PutString("L-StatusCodeDesc", Lstatus.GetDescription());         
     }
     // Update LAST commanded angle information with CURRENT information
     m_lastCmdIsSmallAngle = isSmallAngle;
