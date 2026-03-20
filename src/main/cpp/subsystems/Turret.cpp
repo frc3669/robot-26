@@ -110,10 +110,6 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     configDeployMotor.Slot0.kI = 0.0;
     configDeployMotor.Slot0.kD = 0.1;
     deployMotor.GetConfigurator().Apply(configDeployMotor);
-
-    // Clear all Delta Values
-    m_turretTargetAngleDelta = 0;
-    m_turretTargetDistanceDelta = 0;
     
 
     // Ensure Turret Motor is in ZERO position.
@@ -229,8 +225,8 @@ void Turret::Periodic() {
         m_turretPose = frc::Pose2d{m_pose.Translation()+m_turretTranslation.RotateBy(m_pose.Rotation()), m_pose.Rotation() + frc::Rotation2d{180_deg}};
 
         // Compute Shooting solution (stationary) Turret Angle and Distance
-        // The turret angle will point to the target, compensating for robot heading.
-        m_turretTargetAngle    = computeTurretAngleInDegrees(m_turretPose,
+        // The angle between the turret and the target if the robot is facing 0degrees on the field
+        double robotToTargetAngle    = computeRobotToTgtAngleInDegrees(m_turretPose,
                                                              m_turretTarget );
         m_turretTargetDistance = computeDistanceInMeters(m_turretPose.X().value(),
                                                          m_turretPose.Y().value(),
@@ -238,19 +234,25 @@ void Turret::Periodic() {
                                                          m_turretTarget.Y().value());
 
                                                      
-        // **********
-        // Adjust the Turret Target Angle and Distance for the motion of the Robot
-        // Allow shooting while moving
-        // Adjust Turret Target Angle (if desired,include robot motion)
-        m_turretTargetAngle += m_turretTargetAngleDelta;
-        // Adjust Turret Target Distance (if desired, include robot motion)
-        m_turretTargetDistance += m_turretTargetDistanceDelta;    
-        // **********
 
         // Convert Distance to SHOT SOLUTION MAP table entry index
         m_shotTableIndex = (int) ((m_turretTargetDistance / 3.0) * 10);     // 1/3 meter steps
         if (m_shotTableIndex <  3) m_shotTableIndex = 3;
         if (m_shotTableIndex > 24) m_shotTableIndex = 24;
+
+        // get shooter velocity before robot velocity compensation
+        double shooterVelocity = getShooterRPS(m_shotTableIndex) * 2 * 0.0254 * M_PI;
+        // get hood angle before robot velocity compensation
+        double hoodAngle = getHoodAngle(m_shotTableIndex);
+        
+        // compensate for robot velocity
+        ShotSetpoint velocityCompensatedShooterSetpoint = getVelocityCompensatedShotSetpoint(robotToTargetAngle, shooterVelocity, hoodAngle);
+        // 
+        double turretAngle = m_turretPose.Rotation().Degrees().value() - velocityCompensatedShooterSetpoint.robotToTargetAngleDegrees;
+        am::limitDegrees(turretAngle);
+        // m_turretAngle = turretAngle;
+        // m_hoodAngle = velocityCompensatedShooterSetpoint.hoodAngleDegrees;
+        // m_shooterRPS = velocityCompensatedShooterSetpoint.shooter_RPS;
 
 
 
@@ -274,8 +276,7 @@ void Turret::Periodic() {
         // SET THE HOOD (if enabled) for proper shooting angle to the target
         if (isHoodActive) {
  
-            // Get hood angle from distance table lookup and Robot motion
-            double hoodAngle = getHoodAngle(m_shotTableIndex);
+            double hoodAngle = m_hoodAngle;
 
             // Limit Hood Angle changes to >= 0.2 degrees
            if (units::math::abs<units::degree_t>((units::degree_t)(hoodAngle - m_lastCmdHoodAngle)) >= 0.2_deg)      
@@ -288,7 +289,7 @@ void Turret::Periodic() {
         if (isShooterActive) {
             
             // Get SHOOTER rps fom distance table lookup
-            double shooterRPS = getShooterRPS(m_shotTableIndex);
+            double shooterRPS = m_shooterRPS;
 
             // Limit Shooter changes to >= 0.2 RPS
             if (units::math::abs<units::degree_t>((units::degree_t)(shooterRPS - m_lastCmdShooterRPS)) >= 0.2_deg) 
@@ -686,14 +687,11 @@ double Turret::computeDistanceInMeters(double x1, double y1, double x2, double y
 //       The turretPose must use robotPose and account for turret placement.
 //       (Turret Offset from robot center AND rotation on the field due to robot heading.)
 //
-double Turret::computeTurretAngleInDegrees(frc::Pose2d turretPose, frc::Translation2d turretTarget )
+double Turret::computeRobotToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Translation2d turretTarget )
 {
     double pi_val = 4.0 * std::atan(1.0);       // Compute PI to many digits, atan (1 radian) = PI/4
     double RadiansToDegrees = 180.0 / pi_val;   // Radians to Degrees Conversion Factor
     //double DegreesToRadians = pi_val / 180.0; // Degrees to Radians Conversion Factor
-    double turretAngleDegrees = 0.0;
-    double MAX_TURRET_ROTATION_ANGLE = 179.5;   // Maximum Turret Rotation Angle (Either Direction)
-    //double TurretAngleRadians = 0.0;
 
     // Compute the Angle from the Robot X,Y Position to the Target X,Y Position
     double delta_X = (double) (turretTarget.X() - turretPose.X());
@@ -701,25 +699,33 @@ double Turret::computeTurretAngleInDegrees(frc::Pose2d turretPose, frc::Translat
     double robotToTgtAngleRadians = atan2(delta_Y, delta_X);                    // Radians
     double robotToTgtAngleDegrees = robotToTgtAngleRadians * RadiansToDegrees;  // Degrees
 
-    // Turret Angle to Target -  based on Robot Heading
-    turretAngleDegrees = robotToTgtAngleDegrees - (double) (turretPose.Rotation().Degrees());
- 
-    // Keep Turret Angle within physical limits
-    double turretAngleChange = turretAngleDegrees - lastTurretAngle;
-    am::limitDegrees(turretAngleChange);
-    turretAngleDegrees = lastTurretAngle + turretAngleChange;
-    while (turretAngleDegrees > MAX_TURRET_ROTATION_ANGLE) {
-        turretAngleDegrees -= 360;
-    }
-    while (turretAngleDegrees < -MAX_TURRET_ROTATION_ANGLE) {
-        turretAngleDegrees += 360;
-    }
-
-
-    lastTurretAngle = turretAngleDegrees;
-
-    return (turretAngleDegrees);
+    return (robotToTgtAngleDegrees);
 }
+
+// make a robot velocity compensated vector for determining the turret angle, hood angle, and shooter velocity with compensation for the robot velocity.
+Turret::ShotSetpoint Turret::getVelocityCompensatedShotSetpoint(double robotToTargetAngle, double shooterVelocityMPS, double hoodAngleDegrees) {
+    double hoodAngleRadians = hoodAngleDegrees * M_PI / 180;
+    double robotToTargetAngleRadians = robotToTargetAngle * M_PI / 180;
+    auto shooterHorizontalVelocityMPS = shooterVelocityMPS * sin(hoodAngleRadians);
+    auto shooterVerticalVelocityMPS = shooterVelocityMPS * cos(hoodAngleDegrees);
+    auto shooterVelocityVectorMPS = Eigen::Vector3d(shooterHorizontalVelocityMPS * cos(robotToTargetAngleRadians),
+                                           shooterHorizontalVelocityMPS * sin(robotToTargetAngleRadians),
+                                           shooterVerticalVelocityMPS
+                                           );
+    // get robot chassis speed in field space
+    auto robotSpeed = m_drivePtr->getFieldRelativeSpeeds();
+    // convert to vector in 3D space and subtract to compensate
+    shooterVelocityVectorMPS -= Eigen::Vector3d(robotSpeed.vx.value(), robotSpeed.vy.value(), 0);
+    double newHorizontalVelocity = hypot(shooterVelocityVectorMPS[0], shooterVelocityVectorMPS[1]);
+    double newVerticalVelocity = shooterVelocityVectorMPS[2];
+    double newHoodAngleDegrees = atan2(newHorizontalVelocity, newVerticalVelocity) * 180 / M_PI;
+    double newTurretAngleDegrees = atan2(shooterVelocityVectorMPS[1],shooterVelocityVectorMPS[0]);
+    double newShooterRPS = shooterVelocityVectorMPS.norm() / (2 * 0.0254 * M_PI);
+    if (newHoodAngleDegrees < 10) {newHoodAngleDegrees = 10;}
+    if (newHoodAngleDegrees > 40) {newHoodAngleDegrees = 40;}
+    return ShotSetpoint{newTurretAngleDegrees, newShooterRPS, newHoodAngleDegrees};
+}
+
 // ****************************************
 
 void Turret::enableTurretOperation ()     { startTurret();    }

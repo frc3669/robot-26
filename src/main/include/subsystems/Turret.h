@@ -62,10 +62,8 @@ class Turret : public frc2::SubsystemBase {
 
     // Turret Angle to the currently selected target 
     double m_turretTargetAngle;
-    double m_turretTargetAngleDelta;
     // Turret Distance to the currently selected target
     double m_turretTargetDistance;
-    double m_turretTargetDistanceDelta;
 
     // Hood Angle 
     double m_hoodAngle = 10.0;
@@ -191,7 +189,6 @@ class Turret : public frc2::SubsystemBase {
 
     // target pose for autonomous positioning during teleop
     frc::Pose2d m_targetPose;
-    double lastTurretAngle = 0;
 
     // ****************************************
     // Turret Pose (Determined from Robot Pose and turret placement offsets)
@@ -205,7 +202,14 @@ class Turret : public frc2::SubsystemBase {
     frc::Translation2d m_turretTranslation{ units::length::meter_t {-6.75_in},
                                             units::length::meter_t {+6.75_in}};
 
-                    
+
+
+    struct ShotSetpoint {
+      double shooter_RPS;
+      double hoodAngleDegrees;
+      double robotToTargetAngleDegrees;
+    };
+
     // ****************************************
     struct ShotSolutionEntry {
       double shooter_RPS;
@@ -284,7 +288,8 @@ class Turret : public frc2::SubsystemBase {
     
     double computeDistanceInMeters(double x1, double y1, double x2, double y2);
 
-    double computeTurretAngleInDegrees(frc::Pose2d robotPose, frc::Translation2d turretTargetPose );
+    double computeRobotToTgtAngleInDegrees(frc::Pose2d robotPose, frc::Translation2d turretTargetPose );
+    ShotSetpoint getVelocityCompensatedShotSetpoint(double robotToTargetAngle, double shooterVelocityMPS, double hoodAngleDegrees);
 
     // Enable / Disable Processing from User Interface Buttons
     void enableTurretOperation ();

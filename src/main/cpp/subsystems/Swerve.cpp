@@ -176,6 +176,11 @@ frc::ChassisSpeeds Swerve::getSpeeds() {
                                         m_moduleList[2]->GetState(), m_moduleList[3]->GetState());
 }
 
+frc::ChassisSpeeds Swerve::getFieldRelativeSpeeds() {
+    return frc::ChassisSpeeds::FromRobotRelativeSpeeds(m_kinematics.ToChassisSpeeds(m_moduleList[0]->GetState(), m_moduleList[1]->GetState(),
+                                        m_moduleList[2]->GetState(), m_moduleList[3]->GetState()), m_gyroAngleSignal->GetValue());
+}
+
 frc2::CommandPtr Swerve::driveToPoleIntermediate(const bool & isLeft) {
     return frc2::FunctionalCommand(
         [this, isLeft] { m_targetPose = getIntermediateCoralScoringPose(isLeft); },

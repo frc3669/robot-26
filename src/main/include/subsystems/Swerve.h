@@ -34,6 +34,7 @@ class Swerve : public frc2::SubsystemBase
     void brake();
     frc2::CommandPtr driveToPole(const bool & isLeft);
     frc2::CommandPtr driveToPoleIntermediate(const bool & isLeft);
+    frc::ChassisSpeeds getFieldRelativeSpeeds();
     void InitializeOdometry();
     bool reefWithinRange();
     bool safeToMoveCoralManipulator();
