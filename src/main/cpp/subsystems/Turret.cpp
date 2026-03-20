@@ -226,7 +226,7 @@ void Turret::Periodic() {
 
         // Compute Shooting solution (stationary) Turret Angle and Distance
         // The angle between the turret and the target if the robot is facing 0degrees on the field
-        double turretToTargetAngle = getTurretToTgtAngleInDegrees(m_turretPose,
+        double turretToTargetAngle = computeTurretToTgtAngleInDegrees(m_turretPose,
                                                              m_turretTarget );
         m_turretTargetDistance = computeDistanceInMeters(m_turretPose.X().value(),
                                                          m_turretPose.Y().value(),
@@ -247,7 +247,6 @@ void Turret::Periodic() {
         
         // compensate for robot velocity
         ShotSetpoint velocityCompensatedShooterSetpoint = getVelocityCompensatedShotSetpoint(turretToTargetAngle, shooterVelocity, hoodAngle);
-        // 
         double turretAngle = velocityCompensatedShooterSetpoint.robotToTargetAngleDegrees - m_turretPose.Rotation().Degrees().value();
         am::limitDegrees(turretAngle);
         // m_turretAngle = turretAngle;
@@ -257,6 +256,7 @@ void Turret::Periodic() {
         frc::SmartDashboard::PutNumber("turretAngleAfterCompensation", turretAngle);
         frc::SmartDashboard::PutNumber("hoodAngleAfterCompensation", velocityCompensatedShooterSetpoint.hoodAngleDegrees);
         frc::SmartDashboard::PutNumber("shooterRPSAfterCompensation", velocityCompensatedShooterSetpoint.shooter_RPS);
+        frc::SmartDashboard::PutNumber("TurretToTgtAngleAfterCompensation", velocityCompensatedShooterSetpoint.robotToTargetAngleDegrees);
         frc::SmartDashboard::PutNumber("TurretToTgtAngle", turretToTargetAngle);  
 
 
