@@ -253,6 +253,10 @@ void Turret::Periodic() {
         // m_turretAngle = turretAngle;
         // m_hoodAngle = velocityCompensatedShooterSetpoint.hoodAngleDegrees;
         // m_shooterRPS = velocityCompensatedShooterSetpoint.shooter_RPS;
+        // output values to SmartDashboard for sanity check
+        frc::SmartDashboard::PutNumber("turretAngleAfterCompensation", turretAngle);
+        frc::SmartDashboard::PutNumber("hoodAngleAfterCompensation", velocityCompensatedShooterSetpoint.hoodAngleDegrees);
+        frc::SmartDashboard::PutNumber("shooterRPSAfterCompensation", velocityCompensatedShooterSetpoint.shooter_RPS);
 
 
 
