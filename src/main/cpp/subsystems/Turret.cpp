@@ -226,7 +226,7 @@ void Turret::Periodic() {
 
         // Compute Shooting solution (stationary) Turret Angle and Distance
         // The angle between the turret and the target if the robot is facing 0degrees on the field
-        double robotToTargetAngle    = computeRobotToTgtAngleInDegrees(m_turretPose,
+        double turretToTargetAngle = getTurretToTgtAngleInDegrees(m_turretPose,
                                                              m_turretTarget );
         m_turretTargetDistance = computeDistanceInMeters(m_turretPose.X().value(),
                                                          m_turretPose.Y().value(),
@@ -246,7 +246,7 @@ void Turret::Periodic() {
         double hoodAngle = getHoodAngle(m_shotTableIndex);
         
         // compensate for robot velocity
-        ShotSetpoint velocityCompensatedShooterSetpoint = getVelocityCompensatedShotSetpoint(robotToTargetAngle, shooterVelocity, hoodAngle);
+        ShotSetpoint velocityCompensatedShooterSetpoint = getVelocityCompensatedShotSetpoint(turretToTargetAngle, shooterVelocity, hoodAngle);
         // 
         double turretAngle = velocityCompensatedShooterSetpoint.robotToTargetAngleDegrees - m_turretPose.Rotation().Degrees().value();
         am::limitDegrees(turretAngle);
@@ -257,6 +257,7 @@ void Turret::Periodic() {
         frc::SmartDashboard::PutNumber("turretAngleAfterCompensation", turretAngle);
         frc::SmartDashboard::PutNumber("hoodAngleAfterCompensation", velocityCompensatedShooterSetpoint.hoodAngleDegrees);
         frc::SmartDashboard::PutNumber("shooterRPSAfterCompensation", velocityCompensatedShooterSetpoint.shooter_RPS);
+        frc::SmartDashboard::PutNumber("TurretToTgtAngle", turretToTargetAngle);  
 
 
 
@@ -343,7 +344,6 @@ void Turret::Periodic() {
  
     frc::SmartDashboard::PutNumber("TurretPoseX", m_turretPose.X().value());  
     frc::SmartDashboard::PutNumber("TurretPoseY", m_turretPose.Y().value());    
-    frc::SmartDashboard::PutNumber("TurretTgtAngle", m_turretTargetAngle);  
     frc::SmartDashboard::PutNumber("TurretTgtDistance", m_turretTargetDistance);  
     // ****************************************
 }
@@ -691,7 +691,7 @@ double Turret::computeDistanceInMeters(double x1, double y1, double x2, double y
 //       The turretPose must use robotPose and account for turret placement.
 //       (Turret Offset from robot center AND rotation on the field due to robot heading.)
 //
-double Turret::computeRobotToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Translation2d turretTarget )
+double Turret::computeTurretToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Translation2d turretTarget )
 {
     double pi_val = 4.0 * std::atan(1.0);       // Compute PI to many digits, atan (1 radian) = PI/4
     double RadiansToDegrees = 180.0 / pi_val;   // Radians to Degrees Conversion Factor

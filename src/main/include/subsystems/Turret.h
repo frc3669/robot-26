@@ -288,7 +288,7 @@ class Turret : public frc2::SubsystemBase {
     
     double computeDistanceInMeters(double x1, double y1, double x2, double y2);
 
-    double computeRobotToTgtAngleInDegrees(frc::Pose2d robotPose, frc::Translation2d turretTargetPose );
+    double computeTurretToTgtAngleInDegrees(frc::Pose2d robotPose, frc::Translation2d turretTargetPose );
     ShotSetpoint getVelocityCompensatedShotSetpoint(double robotToTargetAngle, double shooterVelocityMPS, double hoodAngleDegrees);
 
     // Enable / Disable Processing from User Interface Buttons
