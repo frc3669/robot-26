@@ -26,7 +26,7 @@ namespace SwerveConstants {
     inline constexpr units::current::ampere_t max_torque_current = 100_A;
     inline constexpr double motor_turns_per_wheel_turn = 6.03;
     inline constexpr double motor_turns_per_steering_turn = 287/11;
-    inline constexpr double wheel_diameter_m = 0.10081;
+    inline constexpr double wheel_diameter_m = 0.1016;    // Trent had this value 0.10081;
     inline constexpr double motor_turns_per_m = motor_turns_per_wheel_turn / (wheel_diameter_m*M_PI);
     inline constexpr units::velocity::meters_per_second_t max_m_per_sec = 4.5_mps;
     inline constexpr units::velocity::meters_per_second_t max_limelight_m_per_sec = 1_mps;

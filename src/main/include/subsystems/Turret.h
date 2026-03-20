@@ -105,7 +105,7 @@ class Turret : public frc2::SubsystemBase {
     frc2::CommandGenericHID *xkeys;
 
     // Shot Table Enable Flag
-    bool m_isShotTableEnabled = true;
+    bool m_isShotTableEnabled = false;
     
     // Variable to assist in limiting when motors get commanded
     bool   m_isTurretClassConfigComplete = false;

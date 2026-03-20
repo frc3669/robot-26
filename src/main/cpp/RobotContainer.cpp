@@ -118,7 +118,7 @@ void RobotContainer::InitializeOdometry() {
   else if (selectedShooterTarget == "REDHub") {
     m_turret.setTurretTarget (m_turret.m_RED_TargetHub);
   }
-
+  
   m_drive.InitializeOdometry();
   
 }

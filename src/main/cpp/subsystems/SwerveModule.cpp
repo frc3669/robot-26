@@ -69,7 +69,7 @@ void SwerveModule::brake() {
 
 frc::SwerveModulePosition SwerveModule::GetPosition() {
     return {units::meter_t{m_driveMotorTurns->GetValueAsDouble()/SwerveConstants::motor_turns_per_m},
-            units::radian_t{m_encoderTurns->GetValueAsDouble()}};
+            m_encoderTurns->GetValue()};
 }
 
 frc::SwerveModuleState SwerveModule::GetState() {

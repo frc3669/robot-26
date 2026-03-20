@@ -63,7 +63,7 @@ void Swerve::Periodic() {
     frc::SmartDashboard::PutNumber("target pose Y", m_targetPose.Y().value());
     frc::SmartDashboard::PutNumber("target pose A", m_targetPose.Rotation().Degrees().value());
     // Show the gyro Yaw angle
-    frc::SmartDashboard::PutNumber("gyro A= ", gyro.GetYaw().GetValue().value());
+    frc::SmartDashboard::PutNumber("gyro A= ", (double) gyro.GetYaw().GetValue().value());
 }
 
 void Swerve::driveTeleop() {
@@ -73,9 +73,9 @@ void Swerve::driveTeleop() {
     // if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed) {
     //     invert = -1;
     // }
-    if (m_driverController.GetRawButton(4)) {
-        resetRotation(0_deg);
-    }
+    //if (m_driverController.GetRawButton(4)) {
+    //    resetRotation(0_deg);
+    //}
     Eigen::Vector2d velocity(-m_driverController.GetRawAxis(1) * invert, -m_driverController.GetRawAxis(0) * invert);
     double angularVelocity = -m_driverController.GetRawAxis(4);
     /**
@@ -233,12 +233,10 @@ bool Swerve::safeToMoveCoralManipulator() {
 void Swerve::resetRotation(frc::Rotation2d newRotation) {
     gyro.SetYaw(newRotation.Degrees());
     if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
-        LimelightHelpers::SetRobotOrientation("limelight-front", newRotation.Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-left", newRotation.Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-right", newRotation.Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-back", newRotation.Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
     } else {
-        LimelightHelpers::SetRobotOrientation("limelight-front", newRotation.Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-left", newRotation.Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-right", newRotation.Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-back", newRotation.Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -249,12 +247,10 @@ void Swerve::resetRotation(frc::Rotation2d newRotation) {
 void Swerve::resetPose(frc::Pose2d newPose) {
     gyro.SetYaw(newPose.Rotation().Degrees());
     if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
-        LimelightHelpers::SetRobotOrientation("limelight-front", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
-        LimelightHelpers::SetRobotOrientation("limelight-left", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+         LimelightHelpers::SetRobotOrientation("limelight-left", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-right", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-back", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
     } else {
-        LimelightHelpers::SetRobotOrientation("limelight-front", newPose.Rotation().Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-left", newPose.Rotation().Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-right", newPose.Rotation().Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-back", newPose.Rotation().Degrees().value()+180, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -268,7 +264,7 @@ void Swerve::UpdateVision(const std::string& name) {
     // Get the limelight pose, based upon team alliance (Red or Blue)
     LimelightHelpers::PoseEstimate llPose;
     if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
-        LimelightHelpers::SetRobotOrientation(name, m_gyroAngleSignal->GetValue().value() + 180, 0.0, 0.0, 0.0, 0.0, 0.0);
+        LimelightHelpers::SetRobotOrientation(name, m_gyroAngleSignal->GetValue().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         llPose = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2(name); 
     } else {
         LimelightHelpers::SetRobotOrientation(name, m_gyroAngleSignal->GetValue().value() + 180, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -305,8 +301,6 @@ void Swerve::OdometryThread() {
                                    m_backRight.GetPosition()} );
 
         // Adjust for each Limelight Camera
-        // FRONT
-        UpdateVision("limelight-front");
         // LEFT
         UpdateVision("limelight-left");   
         // RIGHT
@@ -323,7 +317,9 @@ void Swerve::InitializeOdometry() {
     for (auto & module : m_moduleList) {
         module->InitializeOdometry();
     }
-    LimelightHelpers::SetIMUMode("", 0);
+    LimelightHelpers::SetIMUMode("limelight-left", 0);
+    LimelightHelpers::SetIMUMode("limelight-right", 0);
+    LimelightHelpers::SetIMUMode("limelight-back", 0);
     std::thread odometryThread(&Swerve::OdometryThread, this);
     odometryThread.detach();
 }
