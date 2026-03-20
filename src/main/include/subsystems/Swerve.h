@@ -46,6 +46,7 @@ class Swerve : public frc2::SubsystemBase
     frc::Pose2d getPose();
 
   private:
+    double m_gyro_compensation_factor = 1.00;
     frc::GenericHID m_driverController;
     ctre::phoenix6::hardware::Pigeon2 gyro{1, ctre::phoenix6::CANBus("Swerve CAN")};
     ctre::phoenix6::StatusSignal<units::angle::degree_t> * m_gyroAngleSignal;
