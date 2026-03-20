@@ -248,7 +248,7 @@ void Turret::Periodic() {
         // compensate for robot velocity
         ShotSetpoint velocityCompensatedShooterSetpoint = getVelocityCompensatedShotSetpoint(robotToTargetAngle, shooterVelocity, hoodAngle);
         // 
-        double turretAngle = m_turretPose.Rotation().Degrees().value() - velocityCompensatedShooterSetpoint.robotToTargetAngleDegrees;
+        double turretAngle = velocityCompensatedShooterSetpoint.robotToTargetAngleDegrees - m_turretPose.Rotation().Degrees().value();
         am::limitDegrees(turretAngle);
         // m_turretAngle = turretAngle;
         // m_hoodAngle = velocityCompensatedShooterSetpoint.hoodAngleDegrees;
@@ -711,7 +711,7 @@ Turret::ShotSetpoint Turret::getVelocityCompensatedShotSetpoint(double robotToTa
     double hoodAngleRadians = hoodAngleDegrees * M_PI / 180;
     double robotToTargetAngleRadians = robotToTargetAngle * M_PI / 180;
     auto shooterHorizontalVelocityMPS = shooterVelocityMPS * sin(hoodAngleRadians);
-    auto shooterVerticalVelocityMPS = shooterVelocityMPS * cos(hoodAngleDegrees);
+    auto shooterVerticalVelocityMPS = shooterVelocityMPS * cos(hoodAngleRadians);
     auto shooterVelocityVectorMPS = Eigen::Vector3d(shooterHorizontalVelocityMPS * cos(robotToTargetAngleRadians),
                                            shooterHorizontalVelocityMPS * sin(robotToTargetAngleRadians),
                                            shooterVerticalVelocityMPS
