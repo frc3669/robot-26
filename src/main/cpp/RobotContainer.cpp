@@ -86,6 +86,8 @@ void RobotContainer::ConfigureChooser() {
   m_turret.m_cmdActionChooser.AddOption("TopEndON",     "TopEndON");
   m_turret.m_cmdActionChooser.AddOption("ShotTableOFF", "ShotTableOFF");
   m_turret.m_cmdActionChooser.AddOption("ShotTableON",  "ShotTableON");
+  m_turret.m_cmdActionChooser.AddOption("CompOFF",      "CompOFF");
+  m_turret.m_cmdActionChooser.AddOption("CompON",       "CompON");
   frc::SmartDashboard::PutData(&m_turret.m_cmdActionChooser); 
 }
 

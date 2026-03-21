@@ -60,18 +60,17 @@ class Turret : public frc2::SubsystemBase {
     bool m_turretTargetSet;
     int  m_shotTableIndex = 1;
 
-    // Turret Angle to the currently selected target 
-    double m_turretTargetAngle;
-    // Turret Distance to the currently selected target
-    double m_turretTargetDistance;
+    // Turret Angle (uncompensated) to the currently selected target 
+    double m_turretToTargetAngle;
+    double m_lastTurretAngle;
+    // Turret Distance (meters) to the currently selected target
+    double m_turretToTargetDistance;
 
     // Hood Angle 
     double m_hoodAngle = 10.0;
-    double m_hoodAngleDelta = 0.0;
 
     // RPS Setting for Shooter Motors (TBD)  (Forward +value, Reverse -value)
     double m_shooterRPS = 2.0;
-    double m_shooterRPSDelta = 0.0;
 
     // RPS Setting for Feeder Motors (TBD)
     double m_feederRPS = 3.0;
@@ -79,8 +78,8 @@ class Turret : public frc2::SubsystemBase {
     // RPS Setting for Spindexer Motor (TBD)
     double m_spindexerRPS = 3.4;
 
-    // RPM setting for Intake Motor (TBD)
-    double m_intakeRPM = 10;
+    // RPS setting for Intake Motors (TBD)
+    double m_intakeRPS = 2;
 
     // Deploy Position for Intake Deploy Motor (TBD)
     double m_intakeDeployPosition = 10;
@@ -104,6 +103,7 @@ class Turret : public frc2::SubsystemBase {
 
     // Shot Table Enable Flag
     bool m_isShotTableEnabled = false;
+    bool m_isCompensationEnabled  = false;
     
     // Variable to assist in limiting when motors get commanded
     bool   m_isTurretClassConfigComplete = false;
@@ -122,6 +122,7 @@ class Turret : public frc2::SubsystemBase {
 
     double m_turretTurns = 0;
     double m_turretAngle = 0.0;   // Testing
+    double MAX_TURRET_ROTATION_ANGLE = 180;
     double m_MinTurretAngle = -120.0; // MIN CCW
     double m_MaxTurretAngle = 120.0;  // MAX CW
 
@@ -154,14 +155,16 @@ class Turret : public frc2::SubsystemBase {
     ctre::phoenix6::hardware::TalonFX spindexerMotor{47, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configSpindexerMotor{};
 
-    // Intake Device Motors (Intake - FIXED Speed and Deploy - Position)
-    // Intake Motor (FIXED Speed)
-    ctre::phoenix6::hardware::TalonFX intakeMotor{48, ctre::phoenix6::CANBus("Main CAN")};
-    ctre::phoenix6::configs::TalonFXConfiguration configIntakeMotor{};
-    double m_intakeRPS = 0;
+    // Intake Device Motors (Intake - FIXED 2 Speed and 1 Deploy - Position)
+    // Intake Left Motor (FIXED Speed)
+    ctre::phoenix6::hardware::TalonFX intakeLeftMotor{48, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::configs::TalonFXConfiguration configIntakeLeftMotor{};
+     // Intake Right Motor (FIXED Speed)
+    ctre::phoenix6::hardware::TalonFX intakeRightMotor{49, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::configs::TalonFXConfiguration configIntakeRightMotor{};
 
     // Deploy Motor (Position - ZERO to +VAL)
-    ctre::phoenix6::hardware::TalonFX deployMotor{49, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::hardware::TalonFX deployMotor{50, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configDeployMotor{};
 
 
@@ -205,9 +208,9 @@ class Turret : public frc2::SubsystemBase {
 
 
     struct ShotSetpoint {
+      double turret_AngleDegrees;
+      double hood_AngleDegrees;
       double shooter_RPS;
-      double hoodAngleDegrees;
-      double robotToTargetAngleDegrees;
     };
 
     // ****************************************
@@ -263,24 +266,21 @@ class Turret : public frc2::SubsystemBase {
     void stopHood ();
 
     double getShooterRPS(int shotTableIndex);
-    double getShooterRPSDelta(frc::Pose2d robotPose);
     void setShooterRPS (double rps);
     void startShooter ();
     void stopShooter ();
 
     double getFeederRPS(int shotTableIndex);
-    double getShooterRPSDelta();
     void setFeederRPS (double rps);
     void startFeeder ();
     void stopFeeder ();
    
     double getSpindexerRPS(int shotTableIndex);
-    double getSpindexerRPSDelta();
     void setSpindexerRPS (double rps);
     void startSpindexer ();
     void stopSpindexer ();
 
-    void setIntakeRPS ();
+    void setIntakeRPS (double rps);
     void zeroizeIntakePosition ();
     void startIntake ();
     void stopIntake ();
