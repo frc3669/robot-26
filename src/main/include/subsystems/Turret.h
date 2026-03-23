@@ -33,7 +33,7 @@ class Turret : public frc2::SubsystemBase {
     // ****************************************
     // Target Shooter Chooser
     frc::SendableChooser<string> m_shooterTgtChooser;
-    string m_lastTgtSelection = "BLUEHub";
+    string m_lastTgtSelection = "unknown";
     //
     // Command Action Chooser
     frc::SendableChooser<string> m_cmdActionChooser;

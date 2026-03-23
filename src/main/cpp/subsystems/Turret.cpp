@@ -159,7 +159,6 @@ void Turret::SimulationPeriodic() {}
 void Turret::Periodic() {
 
      // ****************************************
-    setTurretTarget (m_BLUE_TargetHub);  // Default seletion is the BlueHub
     string tgtSelection = m_shooterTgtChooser.GetSelected();
     if (tgtSelection != m_lastTgtSelection) {
         if (tgtSelection == "BLUEHub") {
@@ -269,8 +268,8 @@ void Turret::Periodic() {
         // Compute Shooting solution (stationary) Turret Angle and Distance
         // The field relative angle between the turret and the target (zero degrees is the x-axis)
         // The angle should always be -90 to +90
-        m_turretToTargetAngle = computeTurretToTgtAngleInDegrees(m_turretPose,
-                                                                 m_turretTarget );
+        double turretToTargetAngle = computeTurretToTgtAngleInDegrees(m_turretPose,
+                                                                      m_turretTarget );
 
 
         m_turretToTargetDistance = computeDistanceInMeters(m_turretPose.X().value(),
@@ -290,12 +289,12 @@ void Turret::Periodic() {
 
         
         // Save Shot Solution (Uncompensated) 
-        ShotSetpoint shotSolutionRaw  = { m_turretToTargetAngle, 
+        ShotSetpoint shotSolutionRaw  = { turretToTargetAngle, 
                                           getHoodAngle(m_shotTableIndex), 
                                           getShooterRPS(m_shotTableIndex)};
 
         // Save Shot Solution (Compensated for Robot speed/heading)
-        ShotSetpoint shotSolutionComp = getVelocityCompensatedShotSetpoint(m_turretToTargetAngle, hoodAngle, shooterVelocity);
+        ShotSetpoint shotSolutionComp = getVelocityCompensatedShotSetpoint(turretToTargetAngle, hoodAngle, shooterVelocity);
         double turretAngleComp = shotSolutionComp.turret_AngleDegrees - m_turretPose.Rotation().Degrees().value();
         am::limitDegrees(turretAngleComp);
 
@@ -312,7 +311,7 @@ void Turret::Periodic() {
         frc::SmartDashboard::PutNumber("TurretPoseX", m_turretPose.X().value());  
         frc::SmartDashboard::PutNumber("TurretPoseY", m_turretPose.Y().value());  
  
-        frc::SmartDashboard::PutNumber("TurretTgtAngle", m_turretToTargetAngle);  
+        frc::SmartDashboard::PutNumber("TurretTgtAngle", turretToTargetAngle);  
         frc::SmartDashboard::PutNumber("TurretTgtDistance", m_turretToTargetDistance);  
         // ****************************************
 
@@ -794,7 +793,7 @@ double Turret::computeTurretToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Tra
 
     // ******
     // Determine the non-compensated angle the Turret should be set to point to the target
-    double turretAngleDegrees = m_turretToTargetAngle - m_turretPose.Rotation().Degrees().value();
+    double turretAngleDegrees = robotToTgtAngleDegrees - m_turretPose.Rotation().Degrees().value();
     double turretAngleChange = turretAngleDegrees - m_lastTurretAngle;
     am::limitDegrees(turretAngleChange);
     turretAngleDegrees = m_lastTurretAngle + turretAngleChange;
@@ -807,7 +806,7 @@ double Turret::computeTurretToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Tra
     m_lastTurretAngle = turretAngleDegrees;
     // *****
 
-    return (turretAngleDegrees);
+    return (m_lastTurretAngle);
 }
 
 // make a robot velocity compensated vector for determining the turret angle, hood angle, and shooter velocity with compensation for the robot velocity.
