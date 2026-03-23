@@ -51,6 +51,14 @@ void RobotContainer::ConfigureBindings() {
 }
 
 void RobotContainer::RegisterNamedCommands() {
+  NamedCommands::registerCommand("Intake DEPLOY",  m_turret.cmdDeployIntake());
+  NamedCommands::registerCommand("Intake RAISE",   m_turret.cmdRaiseIntake());
+  NamedCommands::registerCommand("Intake RETRACT", m_turret.cmdRetractIntake());
+  NamedCommands::registerCommand("Turret ON",  m_turret.cmdOnTurret());
+  NamedCommands::registerCommand("Turret OFF", m_turret.cmdOffTurret());
+  NamedCommands::registerCommand("TopEnd ON",  m_turret.cmdOnTopEnd());
+  NamedCommands::registerCommand("TopEnd OFF", m_turret.cmdOffTopEnd());
+
   //NamedCommands::registerCommand("go L4", m_scoringMech.goL4());
   //NamedCommands::registerCommand("score right pole", Score::ScoreCoralForAuto(m_drive, m_scoringMech, false));
   //NamedCommands::registerCommand("score left pole", Score::ScoreCoralForAuto(m_drive, m_scoringMech, true));
@@ -70,8 +78,11 @@ void RobotContainer::ConfigureChooser() {
   frc::SmartDashboard::PutData(&m_turret.m_shooterTgtChooser);
 
   m_turret.m_cmdActionChooser.SetDefaultOption("NoAction", "NoAction");
-  m_turret.m_cmdActionChooser.AddOption("IntakeOFF",    "IntakeOFF"); 
-  m_turret.m_cmdActionChooser.AddOption("IntakeON",     "IntakeON");
+  m_turret.m_cmdActionChooser.AddOption("IntakeRETRACT",  "IntakeRETRACT"); 
+  m_turret.m_cmdActionChooser.AddOption("IntakeRAISE",    "IntakeRAISE"); 
+  m_turret.m_cmdActionChooser.AddOption("IntakeDEPLOY",   "IntakeDEPLOY");
+  m_turret.m_cmdActionChooser.AddOption("IntakeENABLE",  "IntakeENABLE");
+  m_turret.m_cmdActionChooser.AddOption("IntakeDISABLE","IntakeDISABLE");
   m_turret.m_cmdActionChooser.AddOption("SpindexerOFF", "SpindexerOFF");
   m_turret.m_cmdActionChooser.AddOption("SpindexerON",  "SpindexerON");
   m_turret.m_cmdActionChooser.AddOption("FeederOFF",    "FeederOFF");

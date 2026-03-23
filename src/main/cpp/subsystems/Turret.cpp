@@ -20,6 +20,9 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     isFeederActive = false;     // MUST be TRUE to feed balls  (when FALSE, the feeder is STOPPED)
     isSpindexerActive = false;  // MUST be TRUE to feed balls  (when FALSE, the spindexer is STOPPED)
     isIntakeActive = false;     // MUST be TRUE to intake balls (when FALSE, the intake is NOT Deployed and STOPPED)
+    isTopEndActive = false;
+    isIntakeDeployed = false;
+    isTurretDeadZoneDisabled = false;
 
     // ***************************************
     // define PID values for all Turret motors
@@ -98,29 +101,40 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     configSpindexerMotor.Slot0.kD = 0;
     spindexerMotor.GetConfigurator().Apply(configSpindexerMotor);
 
-    // Intake Motors (2 Intake and Deploy)
-   // Feeder Motor(s) (Speed)  SAME CONFIG IS USED FOR BOTH MOTORS
-    configIntakeLeftMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
-    configIntakeLeftMotor.Slot0.kS = 0.1;   
-    configIntakeLeftMotor.Slot0.kV = 0.12;
-    configIntakeLeftMotor.Slot0.kP = 0.11;
-    configIntakeLeftMotor.Slot0.kI = 0;
-    configIntakeLeftMotor.Slot0.kD = 0;
-    intakeLeftMotor.GetConfigurator().Apply(configIntakeLeftMotor);
-    configIntakeRightMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
-    configIntakeRightMotor.Slot0.kS = 0.1; 
-    configIntakeRightMotor.Slot0.kV = 0.12;
-    configIntakeRightMotor.Slot0.kP = 0.11;
-    configIntakeRightMotor.Slot0.kI = 0;
-    configIntakeRightMotor.Slot0.kD = 0;
-    intakeRightMotor.GetConfigurator().Apply(configIntakeRightMotor);
+    // Intake Motors (Upper, Lower, and Deploy)
+    // Upper and Lower Motor(s) (Speed)  SAME CONFIG IS USED FOR BOTH MOTORS
+    configIntakeUpperMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
+    configIntakeUpperMotor.Slot0.kS = 0.1;   
+    configIntakeUpperMotor.Slot0.kV = 0.12;
+    configIntakeUpperMotor.Slot0.kP = 0.11;
+    configIntakeUpperMotor.Slot0.kI = 0;
+    configIntakeUpperMotor.Slot0.kD = 0;
+    intakeUpperMotor.GetConfigurator().Apply(configIntakeUpperMotor);
+    configIntakeLowerMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast;
+    configIntakeLowerMotor.Slot0.kS = 0.1; 
+    configIntakeLowerMotor.Slot0.kV = 0.12;
+    configIntakeLowerMotor.Slot0.kP = 0.11;
+    configIntakeLowerMotor.Slot0.kI = 0;
+    configIntakeLowerMotor.Slot0.kD = 0;
+    intakeLowerMotor.GetConfigurator().Apply(configIntakeLowerMotor);
  
     // Deploy (Position)
-    configDeployMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake; 
-    configDeployMotor.Slot0.kP = 4.8;
-    configDeployMotor.Slot0.kI = 0.155;
-    configDeployMotor.Slot0.kD = 0.1;
-    deployMotor.GetConfigurator().Apply(configDeployMotor);
+    configDeployMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Coast; 
+    // Slot 0 settings
+    configDeployMotor.Slot0.kS = 0.25;  // Add 0.25 V output to overcome static friction
+    configDeployMotor.Slot0.kV = 0.012; // A velocity target of 1 rps results in 0.12 V output
+    configDeployMotor.Slot0.kA = 0.1;   // An acceleration of 1 rps/s requires 0.01 V output
+    configDeployMotor.Slot0.kP = 0.5;   // A position error of 2.5 rotations results in 12 V output
+    configDeployMotor.Slot0.kI = 0;     // no output for integrated error
+    configDeployMotor.Slot0.kD = 0.1;   // A velocity error of 1 rps results in 0.1 V output   configTurretMotor.Slot0.kP = 1.2;
+    // Motion Magic settings
+    // SMALL ANGLE configuration settings
+    configDeployMotor.MotionMagic.MotionMagicAcceleration = 0_tr_per_s_sq;   // acceleration  (ramp)
+    configDeployMotor.MotionMagic.MotionMagicCruiseVelocity = 6.0_tps;       // velocity  (once ramp up)
+    configDeployMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.1; // Speed per unit of voltage (rotations/sec/V)
+    configDeployMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V) 
+    deployMotor.GetConfigurator().Apply(configDeployMotor); 
+    deployMotor.GetConfigurator().Apply(configDeployMotor.MotionMagic); 
 
 
     // Ensure Turret Motor is in ZERO position.
@@ -133,7 +147,8 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     frc::SmartDashboard::PutNumber("ShooterRPS", m_shooterRPS);
     frc::SmartDashboard::PutNumber("FeederRPS",  m_feederRPS);
     frc::SmartDashboard::PutNumber("SpindexerRPS", m_spindexerRPS);
-    frc::SmartDashboard::PutNumber("IntakeRPS", m_intakeRPS);
+    frc::SmartDashboard::PutNumber("IntakeUpperRPS", m_intakeUpperRPS);
+    frc::SmartDashboard::PutNumber("IntakeLowerRPS", m_intakeLowerRPS);
 
     // Force Commands to go out to each motor
     m_isTurretClassConfigComplete = true;
@@ -144,6 +159,7 @@ void Turret::SimulationPeriodic() {}
 void Turret::Periodic() {
 
      // ****************************************
+    setTurretTarget (m_BLUE_TargetHub);  // Default seletion is the BlueHub
     string tgtSelection = m_shooterTgtChooser.GetSelected();
     if (tgtSelection != m_lastTgtSelection) {
         if (tgtSelection == "BLUEHub") {
@@ -191,12 +207,21 @@ void Turret::Periodic() {
         } 
         else if (cmdAction  == "SpindexerOFF") {
             stopSpindexer();
-        }   
-        else if (cmdAction  == "IntakeON") {
-            startIntake();
+        }
+        else if (cmdAction  == "IntakeENABLE") {
+            isIntakeActive = true;
+        }        
+        else if (cmdAction  == "IntakeDISABLE") {
+            isIntakeActive = false;
+        }                
+        else if (cmdAction  == "IntakeDEPLOY") {
+            deployIntake();
         }    
-        else if (cmdAction  == "IntakeOFF") {
-            stopIntake();
+        else if (cmdAction  == "IntakeRAISE") {
+            raiseIntake();
+        }            
+        else if (cmdAction  == "IntakeRETRACT") {
+            retractIntake();
         }  
         else if (cmdAction  == "TopEndON") {
             enableTopEndOperation();
@@ -226,8 +251,8 @@ void Turret::Periodic() {
     m_shooterRPS = frc::SmartDashboard::GetNumber("ShooterRPS", 10.0);
     m_feederRPS = frc::SmartDashboard::GetNumber("FeederRPS", 3.4);
     m_spindexerRPS = frc::SmartDashboard::GetNumber("SpindexerRPS", 3.4);
-    m_intakeRPS = frc::SmartDashboard::GetNumber("IntakeRPS", 10.0);
-
+    m_intakeUpperRPS = frc::SmartDashboard::GetNumber("IntakeUpperRPS", 20.0);
+    m_intakeLowerRPS = frc::SmartDashboard::GetNumber("IntakeLowerRPS", 20.0);
 
 
     // ****************************************
@@ -263,35 +288,19 @@ void Turret::Periodic() {
         // get hood angle before robot velocity compensation
         double hoodAngle = getHoodAngle(m_shotTableIndex);
 
-        // ******
-        // Determine the non-compensated angle the Turret should be set to point to the target
-        double turretAngleDegrees = m_turretToTargetAngle - m_turretPose.Rotation().Degrees().value();
-        double turretAngleChange = turretAngleDegrees - m_lastTurretAngle;
-        am::limitDegrees(turretAngleChange);
-        turretAngleDegrees = m_lastTurretAngle + turretAngleChange;
-        while (turretAngleDegrees > MAX_TURRET_ROTATION_ANGLE) {
-            turretAngleDegrees -= 360;
-        }
-        while (turretAngleDegrees < -MAX_TURRET_ROTATION_ANGLE) {
-            turretAngleDegrees += 360;
-        }
-        m_lastTurretAngle = turretAngleDegrees;
-        // *****
         
         // Save Shot Solution (Uncompensated) 
-        ShotSetpoint shotSolutionRaw  = {turretAngleDegrees, getShooterRPS(m_shotTableIndex), getHoodAngle(m_shotTableIndex)};
+        ShotSetpoint shotSolutionRaw  = { m_turretToTargetAngle, 
+                                          getHoodAngle(m_shotTableIndex), 
+                                          getShooterRPS(m_shotTableIndex)};
 
         // Save Shot Solution (Compensated for Robot speed/heading)
-        ShotSetpoint shotSolutionComp = getVelocityCompensatedShotSetpoint(m_turretToTargetAngle, shooterVelocity, hoodAngle);
+        ShotSetpoint shotSolutionComp = getVelocityCompensatedShotSetpoint(m_turretToTargetAngle, hoodAngle, shooterVelocity);
         double turretAngleComp = shotSolutionComp.turret_AngleDegrees - m_turretPose.Rotation().Degrees().value();
         am::limitDegrees(turretAngleComp);
 
-        // m_turretAngle = turretAngle;
-        // m_hoodAngle = shotSolutionComp.hoodAngleDegrees;
-        // m_shooterRPS = shotSolutionComp.shooter_RPS;
         // output values to SmartDashboard for sanity check
         frc::SmartDashboard::PutNumber("turretAngleComp", turretAngleComp);
-    
         frc::SmartDashboard::PutNumber("hoodAngleComp", shotSolutionComp.hood_AngleDegrees);
         frc::SmartDashboard::PutNumber("shooterRPSComp", shotSolutionComp.shooter_RPS);
         frc::SmartDashboard::PutNumber("turretToTgtAngleComp", shotSolutionComp.turret_AngleDegrees);
@@ -302,8 +311,8 @@ void Turret::Periodic() {
  
         frc::SmartDashboard::PutNumber("TurretPoseX", m_turretPose.X().value());  
         frc::SmartDashboard::PutNumber("TurretPoseY", m_turretPose.Y().value());  
-        frc::SmartDashboard::PutNumber("TurretToTgtAngle", m_turretToTargetAngle);  
-        frc::SmartDashboard::PutNumber("TurretTgtAngle", turretAngleDegrees);  
+ 
+        frc::SmartDashboard::PutNumber("TurretTgtAngle", m_turretToTargetAngle);  
         frc::SmartDashboard::PutNumber("TurretTgtDistance", m_turretToTargetDistance);  
         // ****************************************
 
@@ -401,8 +410,8 @@ void Turret::Periodic() {
         }
 
         // SET THE INTAKE (if enabled) for proper intake into the Spindexer
-        if (isIntakeActive) {         
-            setIntakeRPS (m_intakeRPS);
+        if (isIntakeActive && isIntakeDeployed) {         
+            setIntakeRPS ();
         }      
     }
     // ****************************************       
@@ -431,18 +440,35 @@ void Turret::Periodic() {
     // Ensure angle NOT MORE than maximum
     if (reqAngle > m_MaxTurretAngle) {
         reqAngle = m_MaxTurretAngle;
+        if (isTopEndActive) {
+            disableTopEndOperation ();
+            isTurretDeadZoneDisabled = true;
+        }
     }
     // Ensure angle NOT LESS than minimum
-    if (reqAngle < m_MinTurretAngle) {
+    else if (reqAngle < m_MinTurretAngle) {
         reqAngle = m_MinTurretAngle;
+        if (isTopEndActive) {
+            disableTopEndOperation ();
+            isTurretDeadZoneDisabled = true;
+        }
     }
+    else {
+         if (isTurretDeadZoneDisabled){
+            isTurretDeadZoneDisabled = false;
+            enableTopEndOperation();
+         }
+    }
+    // ***** REFRESH Motor Configuration (AS NEEDED ONLY)
+    frc::SmartDashboard::PutNumber("TurretANGLE", angle);
  
+
     double mechRotations = reqAngle / 360.0;
     double turretTurns = mechRotations * m_turretGearRatio;
     units::angle::turn_t turns = (units::angle::turn_t) turretTurns;
 
     // ***** REFRESH Motor Configuration (AS NEEDED ONLY) for SMALL or LARGE angle operation.
-    if (isSmallAngle) {
+    if (isSmallAngle && (!m_lastCmdIsSmallAngle)) {
        // Refresh config for SMALL angle configuration (was LARGE previously)
        configTurretMotor.MotionMagic.MotionMagicAcceleration = 0_tr_per_s_sq; // acceleration  (ramp)
        configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;       // velocity  (once ramp up)
@@ -450,7 +476,7 @@ void Turret::Periodic() {
        configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V) 
        turretMotor.GetConfigurator().Apply(configTurretMotor.MotionMagic);
     } 
-    else {
+    else if (!isSmallAngle && m_lastCmdIsSmallAngle) {
        // Refresh config for LARGE angle configuration (was SMALL previously)
        configTurretMotor.MotionMagic.MotionMagicAcceleration = 11000_tr_per_s_sq; // acceleration  (ramp)
        configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
@@ -458,10 +484,9 @@ void Turret::Periodic() {
        configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
        turretMotor.GetConfigurator().Apply(configTurretMotor.MotionMagic);       
     }
+ 
     // Update LAST commanded angle information with CURRENT information
     m_lastCmdIsSmallAngle = isSmallAngle;
-    // ***** REFRESH Motor Configuration (AS NEEDED ONLY)
-    frc::SmartDashboard::PutNumber("TurretANGLE", angle);
 
     ctre::phoenix6::controls::MotionMagicExpoVoltage m_turretRequest{0_tr};
     // Move the turret the desired number of turns, matching the requested angle
@@ -652,47 +677,66 @@ void Turret::stopSpindexer () {
 }
 
 // *** INTAKE ***
-void Turret::setIntakeRPS (double rps) {
+void Turret::setIntakeRPS () {
     // Set the motor speeds (FORWARD and REVERSE)
-    ctre::phoenix6::controls::VelocityVoltage m_leftRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
-    ctre::phoenix6::controls::VelocityVoltage m_rightRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
+    ctre::phoenix6::controls::VelocityVoltage m_upperRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
+    ctre::phoenix6::controls::VelocityVoltage m_lowerRequest = ctre::phoenix6::controls::VelocityVoltage{0_tps}.WithSlot(0);
 
-    intakeLeftMotor.SetControl(m_leftRequest.WithVelocity((units::angular_velocity::turns_per_second_t) (rps * m_intakeGearRatio)).WithFeedForward(0.5_V));
-    intakeRightMotor.SetControl(m_rightRequest.WithVelocity((units::angular_velocity::turns_per_second_t) -(rps * m_intakeGearRatio)).WithFeedForward(0.5_V));
+    intakeUpperMotor.SetControl(m_upperRequest.WithVelocity((units::angular_velocity::turns_per_second_t) (m_intakeUpperRPS)).WithFeedForward(0.5_V));
+    intakeLowerMotor.SetControl(m_lowerRequest.WithVelocity((units::angular_velocity::turns_per_second_t) -(m_intakeLowerRPS)).WithFeedForward(0.5_V));
 }
 
 void Turret::zeroizeIntakePosition () {
     // ASSUMES THE INTAKE IS FULLY RETRACTED (NOT EXTENDED)
-    ctre::phoenix6::controls::PositionDutyCycle initZeroRequest{(units::angle::turn_t) 0};
-    deployMotor.SetControl (initZeroRequest);
-    isIntakeActive = true;
-}
-
-void Turret::startIntake () {
-    isIntakeActive = true;
-
-      // deploy (fully extend)
-    units::angle::turn_t intakeDeployPosition = (units::angle::turn_t) m_intakeDeployPosition;
-    ctre::phoenix6::controls::MotionMagicDutyCycle extendRequest{intakeDeployPosition};
-    deployMotor.SetControl(extendRequest);      
-    
-    setIntakeRPS (m_intakeRPS);
-}
-
-void Turret::stopIntake () {
+    deployMotor.SetPosition ((units::angle::turn_t) 0.0);
+ 
     isIntakeActive = false;
+    isIntakeDeployed = false;
+}
+
+void Turret::deployIntake () {
+
+    // deploy (fully extend)
+    ctre::phoenix6::controls::PositionVoltage deployRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0); 
+    deployMotor.SetControl(deployRequest.WithPosition( (units::angle::turn_t) m_intakeDeployPosition)); 
+
+    isIntakeActive = true;
+    isIntakeDeployed = true;  
+}
+
+void Turret::retractIntake () {
+    isIntakeActive = false;
+    isIntakeDeployed = false;
 
     // Disable the Intake and Undeploy (fully retract)
-    // Stop the Intake Motors
-    intakeLeftMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) 0});
-    intakeRightMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
-
-     // Undeploy (fully retract)
-    units::angle::turn_t intakeZeroPosition = (units::angle::turn_t) 0;
-    ctre::phoenix6::controls::MotionMagicDutyCycle retractRequest{intakeZeroPosition};
-    deployMotor.SetControl(retractRequest);       
+    // Stop the Intake Upper Motor
+    intakeUpperMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) 0});
+    intakeUpperMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
+    // Stop the Intake Lower Motor
+    intakeLowerMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) 0});
+    intakeLowerMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
+   
+    // Undeploy (fully retract)
+    ctre::phoenix6::controls::PositionVoltage retractRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);;
+    deployMotor.SetControl(retractRequest.WithPosition( 0_tr));       
 }
 
+void Turret::raiseIntake () {
+    isIntakeActive = false;
+    isIntakeDeployed = false;
+
+    // Disable the Intake and Raise Up (do not fully retract)
+    // Stop the Intake Upper Motor
+    intakeUpperMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) 0});
+    intakeUpperMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
+    // Stop the Intake Lower Motor
+    intakeLowerMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage{(units::angular_velocity::turns_per_second_t) 0});
+    intakeLowerMotor.SetControl(ctre::phoenix6::controls::NeutralOut{});
+   
+    // Undeploy (raise off the floor, but not fully retracted)    
+    ctre::phoenix6::controls::PositionVoltage raiseRequest = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);;
+    deployMotor.SetControl(raiseRequest.WithPosition((units::angle::turn_t) m_intakeRaisePosition));    
+}
 
 
 
@@ -731,6 +775,9 @@ double Turret::computeDistanceInMeters(double x1, double y1, double x2, double y
 //       The turretPose must use robotPose and account for turret placement.
 //       (Turret Offset from robot center AND rotation on the field due to robot heading.)
 //
+// NOTE: This routine returns the turret shooting solution angle.
+//       The angle is +/- 180 degrees from the turret perspective.
+//       As a reminder, the turret faces 180 degrees OPPOSITE the robot front.
 double Turret::computeTurretToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Translation2d turretTarget )
 {
     double pi_val = 4.0 * std::atan(1.0);       // Compute PI to many digits, atan (1 radian) = PI/4
@@ -743,7 +790,24 @@ double Turret::computeTurretToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Tra
     double robotToTgtAngleRadians = atan2(delta_Y, delta_X);           // Radians
     double robotToTgtAngleDegrees = robotToTgtAngleRadians * RadiansToDegrees;  // Degrees
 
-    return (robotToTgtAngleDegrees);
+    frc::SmartDashboard::PutNumber("FieldTgtAngle", robotToTgtAngleDegrees); 
+
+    // ******
+    // Determine the non-compensated angle the Turret should be set to point to the target
+    double turretAngleDegrees = m_turretToTargetAngle - m_turretPose.Rotation().Degrees().value();
+    double turretAngleChange = turretAngleDegrees - m_lastTurretAngle;
+    am::limitDegrees(turretAngleChange);
+    turretAngleDegrees = m_lastTurretAngle + turretAngleChange;
+    while (turretAngleDegrees > MAX_TURRET_ROTATION_ANGLE) {
+        turretAngleDegrees -= 360;
+    }
+    while (turretAngleDegrees < -MAX_TURRET_ROTATION_ANGLE) {
+         turretAngleDegrees += 360;
+    }
+    m_lastTurretAngle = turretAngleDegrees;
+    // *****
+
+    return (turretAngleDegrees);
 }
 
 // make a robot velocity compensated vector for determining the turret angle, hood angle, and shooter velocity with compensation for the robot velocity.
@@ -778,16 +842,17 @@ void Turret::enableHoodOperation ()       { startHood();      }
 void Turret::enableShooterOperation ()    { startShooter();   }
 void Turret::enableFeederOperation ()     { startFeeder();    }
 void Turret::enableSpindexerOperation ()  { startSpindexer(); }
-void Turret::enableIntakeOperation ()     { startIntake();    }
-void Turret::enableTopEndOperation ()     { startHood(); startShooter(); startFeeder(); startSpindexer();  }
+void Turret::deployIntakeOperation ()     { deployIntake();   }
+void Turret::raiseIntakeOperation ()      { raiseIntake();    }
+void Turret::enableTopEndOperation ()     { startHood(); startShooter(); startFeeder(); startSpindexer(); isTopEndActive = true; }
 
 void Turret::disableTurretOperation ()    { stopTurret();     }
 void Turret::disableHoodOperation ()      { stopHood();       }
 void Turret::disableShooterOperation ()   { stopShooter();    }
 void Turret::disableFeederOperation ()    { stopFeeder();     }
 void Turret::disableSpindexerOperation () { stopSpindexer();  }
-void Turret::disableIntakeOperation ()    { stopIntake();  }
-void Turret::disableTopEndOperation ()     { stopSpindexer(); stopFeeder(); stopShooter(); stopHood();  }
+void Turret::retractIntakeOperation ()    { retractIntake();  }
+void Turret::disableTopEndOperation ()    { stopSpindexer(); stopFeeder(); stopShooter(); stopHood(); isTopEndActive = false; }
 
 
 
@@ -811,9 +876,18 @@ frc2::CommandPtr Turret::cmdOnSpindexer() {
    return RunOnce([this] { enableSpindexerOperation(); }).WithName("Enable Spindexer Operation");
 }
 
-frc2::CommandPtr Turret::cmdOnIntake() {
-   return RunOnce([this] { enableIntakeOperation(); }).WithName("Enable Intake Operation");
+frc2::CommandPtr Turret::cmdDeployIntake() {
+   return RunOnce([this] { deployIntakeOperation(); }).WithName("Deploy Intake Operation");
 }
+
+frc2::CommandPtr Turret::cmdRaiseIntake() {
+   return RunOnce([this] { raiseIntakeOperation(); }).WithName("Raise Intake Operation");
+}
+
+frc2::CommandPtr Turret::cmdOnTopEnd() {
+   return RunOnce([this] { enableTopEndOperation(); }).WithName("Enable TopEnd Operation");
+}
+
 
 
 frc2::CommandPtr Turret::cmdOffTurret()  {
@@ -836,10 +910,13 @@ frc2::CommandPtr Turret::cmdOffSpindexer() {
    return RunOnce([this] { disableSpindexerOperation(); }).WithName("Disable Spindexer Operation");
 }
 
-frc2::CommandPtr Turret::cmdOffIntake() {
-   return RunOnce([this] { disableIntakeOperation(); }).WithName("Disable Spindexer Operation");
+frc2::CommandPtr Turret::cmdRetractIntake() {
+   return RunOnce([this] { retractIntakeOperation(); }).WithName("Retract Intake Operation");
 }
 
+frc2::CommandPtr Turret::cmdOffTopEnd() {
+   return RunOnce([this] { disableTopEndOperation(); }).WithName("Disable TopEnd Operation");
+}
 
 // Turret Destructor
 Turret::~Turret() {}

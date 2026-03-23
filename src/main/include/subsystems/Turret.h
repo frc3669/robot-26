@@ -45,16 +45,17 @@ class Turret : public frc2::SubsystemBase {
     frc2::CommandPtr cmdOnShooter();
     frc2::CommandPtr cmdOnFeeder();
     frc2::CommandPtr cmdOnSpindexer();
-    frc2::CommandPtr cmdOnIntake();
-    frc2::CommandPtr cmdOnDeploy();
+    frc2::CommandPtr cmdDeployIntake();
+    frc2::CommandPtr cmdRaiseIntake();
+    frc2::CommandPtr cmdOnTopEnd();
 
     frc2::CommandPtr cmdOffTurret();
     frc2::CommandPtr cmdOffHood();
     frc2::CommandPtr cmdOffShooter();
     frc2::CommandPtr cmdOffFeeder();
     frc2::CommandPtr cmdOffSpindexer();
-    frc2::CommandPtr cmdOffIntake();
-    frc2::CommandPtr cmdOffDeploy();
+    frc2::CommandPtr cmdRetractIntake();
+    frc2::CommandPtr cmdOffTopEnd();
 
     // Indicates whether the Turret Target Pose has been SET
     bool m_turretTargetSet;
@@ -79,10 +80,12 @@ class Turret : public frc2::SubsystemBase {
     double m_spindexerRPS = 3.4;
 
     // RPS setting for Intake Motors (TBD)
-    double m_intakeRPS = 2;
+    double m_intakeUpperRPS = 40;
+    double m_intakeLowerRPS = 20;
 
-    // Deploy Position for Intake Deploy Motor (TBD)
-    double m_intakeDeployPosition = 10;
+    // Deploy and Raise Positions for Intake Deploy Motor (TBD)
+    double m_intakeDeployPosition = 18.0;
+    double m_intakeRaisePosition  = 10.0;
   
     // 
     // The currently selected turret target position
@@ -123,8 +126,8 @@ class Turret : public frc2::SubsystemBase {
     double m_turretTurns = 0;
     double m_turretAngle = 0.0;   // Testing
     double MAX_TURRET_ROTATION_ANGLE = 180;
-    double m_MinTurretAngle = -120.0; // MIN CCW
-    double m_MaxTurretAngle = 120.0;  // MAX CW
+    double m_MinTurretAngle = -60.0; // MIN CCW
+    double m_MaxTurretAngle = 60.0;  // MAX CW
 
     // Hood Motor (Position - ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX hoodMotor{42, ctre::phoenix6::CANBus("Main CAN")};
@@ -156,14 +159,14 @@ class Turret : public frc2::SubsystemBase {
     ctre::phoenix6::configs::TalonFXConfiguration configSpindexerMotor{};
 
     // Intake Device Motors (Intake - FIXED 2 Speed and 1 Deploy - Position)
-    // Intake Left Motor (FIXED Speed)
-    ctre::phoenix6::hardware::TalonFX intakeLeftMotor{48, ctre::phoenix6::CANBus("Main CAN")};
-    ctre::phoenix6::configs::TalonFXConfiguration configIntakeLeftMotor{};
-     // Intake Right Motor (FIXED Speed)
-    ctre::phoenix6::hardware::TalonFX intakeRightMotor{49, ctre::phoenix6::CANBus("Main CAN")};
-    ctre::phoenix6::configs::TalonFXConfiguration configIntakeRightMotor{};
+    // Intake Upper Motor (FIXED Speed)
+    ctre::phoenix6::hardware::TalonFX intakeUpperMotor{48, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::configs::TalonFXConfiguration configIntakeUpperMotor{};
+     // Intake Lower Motor (FIXED Speed)
+    ctre::phoenix6::hardware::TalonFX intakeLowerMotor{49, ctre::phoenix6::CANBus("Main CAN")};
+    ctre::phoenix6::configs::TalonFXConfiguration configIntakeLowerMotor{};
 
-    // Deploy Motor (Position - ZERO to +VAL)
+    // Intake Deploy Motor (Position - ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX deployMotor{50, ctre::phoenix6::CANBus("Main CAN")};
     ctre::phoenix6::configs::TalonFXConfiguration configDeployMotor{};
 
@@ -174,6 +177,13 @@ class Turret : public frc2::SubsystemBase {
     bool isFeederActive;    // MUST be TRUE to feed balls  (when FALSE, the (2) feeder motors are STOPPED)
     bool isSpindexerActive; // MUST be TRUE to feed balls  (when FALSE, the spindexer is STOPPED)
     bool isIntakeActive;    // MUST be TRUE to pickup balls (when FALSE, the intake is UP and STOPPED)
+    bool isIntakeDeployed;
+
+    bool isTopEndActive;           // Set TRUE when the Top End has been turned on
+    bool isTurretDeadZoneDisabled; // Set TRUE when the Top End was enabled, and then entered the dead zone.
+                                   // Turret Dead Zone is past the turret aiming angle.
+                                   // If we entered a dead zone when the TopEnd was active, we need to re-enable
+                                   // the TopEnd when we leave the dead zone.
 
     // Various Gear Ratios for the various motors
     // POSITION
@@ -280,10 +290,11 @@ class Turret : public frc2::SubsystemBase {
     void startSpindexer ();
     void stopSpindexer ();
 
-    void setIntakeRPS (double rps);
+    void setIntakeRPS ();         // See m_intakeUpperRPS and m_intakeLowerRPS 
     void zeroizeIntakePosition ();
-    void startIntake ();
-    void stopIntake ();
+    void deployIntake ();
+    void raiseIntake ();
+    void retractIntake ();
 
     
     double computeDistanceInMeters(double x1, double y1, double x2, double y2);
@@ -297,7 +308,8 @@ class Turret : public frc2::SubsystemBase {
     void enableShooterOperation ();
     void enableFeederOperation ();
     void enableSpindexerOperation ();
-    void enableIntakeOperation ();
+    void deployIntakeOperation ();
+    void raiseIntakeOperation ();
     void enableTopEndOperation ();
 
     void disableTurretOperation ();
@@ -305,7 +317,7 @@ class Turret : public frc2::SubsystemBase {
     void disableShooterOperation ();
     void disableFeederOperation ();
     void disableSpindexerOperation (); 
-    void disableIntakeOperation ();
+    void retractIntakeOperation ();
     void disableTopEndOperation ();
     
 };
