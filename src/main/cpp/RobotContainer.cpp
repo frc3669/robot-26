@@ -25,6 +25,14 @@ RobotContainer::RobotContainer() {
 }
 
 void RobotContainer::ConfigureBindings() {
+  // Keypad Controls
+  //
+  m_XKeys.Button(1).OnTrue(m_turret.cmdOnTopEnd());
+  m_XKeys.Button(2).OnTrue(m_turret.cmdOffTopEnd());
+  m_XKeys.Button(3).OnTrue(m_turret.cmdRaiseIntake());
+  m_XKeys.Button(4).OnTrue(m_turret.cmdRetractIntake());
+  m_XKeys.Button(5).OnTrue(m_turret.cmdDeployIntake());
+
   // scoring mechanism button bindings
   //m_XKeys.Button(9).OnTrue(GeneralCmds::IntakeSafely(m_drive, m_scoringMech));
   //m_XKeys.Button(17).OnTrue(GeneralCmds::HomeSafely(m_drive, m_scoringMech));
@@ -35,7 +43,7 @@ void RobotContainer::ConfigureBindings() {
   //m_XKeys.Button(13).OnTrue(m_scoringMech.setCoralScoringLevel(4));
   //m_XKeys.Button(10).OnTrue(m_scoringMech.ejectCoral());
   //m_XKeys.Button(5).OnTrue(m_scoringMech.intakeAlgae());
-  //m_XKeys.Button(3).OnTrue(m_scoringMech.intakeL3_5());
+  //m_XKeys.Button(3).OnTrue(m_scoringMech.intakeL3_5());  // 
   //m_XKeys.Button(4).OnTrue(m_scoringMech.intakeL2_5());
   //m_XKeys.Button(1).OnTrue(m_scoringMech.goBarge());
   //m_XKeys.Button(2).OnTrue(m_scoringMech.goProcessor());
@@ -74,7 +82,11 @@ void RobotContainer::ConfigureChooser() {
   //frc::SmartDashboard::PutData(&m_chooser);
 
   m_turret.m_shooterTgtChooser.SetDefaultOption("BLUEHub", "BLUEHub");
+  m_turret.m_shooterTgtChooser.AddOption("BLUEDepot", "BLUEDepot");
+  m_turret.m_shooterTgtChooser.AddOption("BLUEOutpost", "BLUEOutpost");
   m_turret.m_shooterTgtChooser.AddOption("REDHub", "REDHub");
+  m_turret.m_shooterTgtChooser.AddOption("REDDepot", "REDDepot");
+  m_turret.m_shooterTgtChooser.AddOption("REDOutpost", "REDOutpost");
   frc::SmartDashboard::PutData(&m_turret.m_shooterTgtChooser);
 
   m_turret.m_cmdActionChooser.SetDefaultOption("NoAction", "NoAction");
@@ -123,13 +135,13 @@ void RobotContainer::DisplaySchedulerDetails() {
 }
 
 void RobotContainer::InitializeOdometry() {
-  m_turret.setTurretTarget (m_turret.m_BLUE_TargetHub);
+  m_turret.setTurretTarget (m_turret.m_BLUE_TgtHub);
   string selectedShooterTarget = m_turret.m_shooterTgtChooser.GetSelected();
   if (selectedShooterTarget == "BLUEHub") {
-    m_turret.setTurretTarget (m_turret.m_BLUE_TargetHub);
+    m_turret.setTurretTarget (m_turret.m_BLUE_TgtHub);
   }
   else if (selectedShooterTarget == "REDHub") {
-    m_turret.setTurretTarget (m_turret.m_RED_TargetHub);
+    m_turret.setTurretTarget (m_turret.m_RED_TgtHub);
   }
   
   m_drive.InitializeOdometry();

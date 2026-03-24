@@ -92,8 +92,16 @@ class Turret : public frc2::SubsystemBase {
     frc::Translation2d m_turretTarget {0_in, 0_in};
 
      // Pre-defined TurretTargetPose Selections  (X, Y) in INCHES
-    frc::Translation2d m_BLUE_TargetHub{182.11_in, 158.845_in};
-    frc::Translation2d m_RED_TargetHub {469.11_in, 158.845_in};   
+    frc::Translation2d m_BLUE_TgtHub {182.11_in, 158.845_in};
+    frc::Translation2d m_BLUE_Outpost{90.0_in,    80.0_in};
+    frc::Translation2d m_BLUE_Depot  {90.0_in,   250.0_in};
+
+    frc::Translation2d m_RED_TgtHub  {469.11_in,  158.845_in}; 
+    frc::Translation2d m_RED_Outpost {559.0_in,   250.0_in};
+    frc::Translation2d m_RED_Depot   {559.0_in,   80.0_in};
+    // Target Selection Mode 
+    // Manual OR Automatic 
+    bool m_isManualTgtSelection = true;
 
     // Set/Get Turret Target Location (X,Y)
     void setTurretTarget (frc::Translation2d theShooterTarget); 
@@ -125,9 +133,9 @@ class Turret : public frc2::SubsystemBase {
 
     double m_turretTurns = 0;
     double m_turretAngle = 0.0;   // Testing
-    double MAX_TURRET_ROTATION_ANGLE = 180;
-    double m_MinTurretAngle = -60.0; // MIN CCW
-    double m_MaxTurretAngle = 60.0;  // MAX CW
+    double MAX_TURRET_ROTATION_ANGLE = 180;    // Used for calculating the desired turret angle +/- 180
+    double m_MinTurretAngle = -90.0;           // MIN CCW  - Actual Limit which we can command
+    double m_MaxTurretAngle = 90.0;            // MAX CW   - Actual Limit which we can command
 
     // Hood Motor (Position - ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX hoodMotor{42, ctre::phoenix6::CANBus("Main CAN")};

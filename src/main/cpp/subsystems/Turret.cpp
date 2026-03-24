@@ -158,21 +158,6 @@ void Turret::SimulationPeriodic() {}
 
 void Turret::Periodic() {
 
-     // ****************************************
-    string tgtSelection = m_shooterTgtChooser.GetSelected();
-    if (tgtSelection != m_lastTgtSelection) {
-        if (tgtSelection == "BLUEHub") {
-            setTurretTarget (m_BLUE_TargetHub);
-        }
-        else if (tgtSelection == "REDHub") {
-            setTurretTarget (m_RED_TargetHub);
-        }
-        frc::SmartDashboard::PutString("TurretTargetID", tgtSelection);          
-         // Indicate the last command action, so it is NOT done again.
-        m_lastTgtSelection = tgtSelection;       
-    }
-    // ****************************************
-
     // Control Turret Subsystem Opoeration from Smart Dashboard
     string cmdAction = m_cmdActionChooser.GetSelected();
     if (cmdAction != m_lastCmdAction) {
@@ -262,6 +247,68 @@ void Turret::Periodic() {
         // Get the current robot pose
         frc::Pose2d  m_pose = m_drivePtr->getPose();
 
+        if (m_isManualTgtSelection) 
+        {
+            // MANUAL Target Selection
+            string tgtSelection = m_shooterTgtChooser.GetSelected();
+            if (tgtSelection != m_lastTgtSelection) {
+                if (tgtSelection == "BLUEHub") {
+                    setTurretTarget (m_BLUE_TgtHub);
+                }
+                else if (tgtSelection == "BLUEOutpost") {
+                    setTurretTarget (m_BLUE_Outpost);
+                }
+                else if (tgtSelection == "BLUEDepot") {
+                    setTurretTarget (m_BLUE_Depot);
+                }
+                else if (tgtSelection == "REDHub") {
+                    setTurretTarget (m_RED_TgtHub);
+                }
+                else if (tgtSelection == "REDOutpost") {
+                    setTurretTarget (m_RED_Outpost);
+                }
+                else if (tgtSelection == "REDDepot") {
+                    setTurretTarget (m_RED_Depot);
+                }               
+            }
+            // Manual Tgt Selection
+        }
+        else {
+            // ****************************************
+            // AUTO Compute Target Selection based upon field location
+            // When BLUE Alliance, we can be on the Alliance Side OR the Neutral Zone
+            if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue)    
+            {
+                // Check if we are in the alliance zone
+                if (m_pose.X().value() < 180.0) {
+                   setTurretTarget (m_BLUE_TgtHub);
+                }
+                else {
+                   if (m_pose.Y().value() < 158.0) {
+                  setTurretTarget (m_BLUE_Outpost);
+                   } else {
+                      setTurretTarget (m_BLUE_Depot);
+                   }
+                }      
+            } 
+            // When RED Alliance, we can be on the Alliance Side OR the Neutral Zone
+            else if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed) 
+            {  
+                // Check if we are in the alliance zone
+                if (m_pose.X().value() > 468.0) {
+                   setTurretTarget (m_RED_TgtHub);
+                }
+                else {
+                   if (m_pose.Y().value() < 158.0) {
+                      setTurretTarget (m_RED_Outpost);
+                   } else {
+                      setTurretTarget (m_BLUE_Depot);
+                   }
+                }      
+            }
+        }  //Auto Selection
+        // ****************************************
+
         // Determine the Turret Pose (Relative to the Robot Pose)
         m_turretPose = frc::Pose2d{m_pose.Translation() + m_turretTranslation.RotateBy(m_pose.Rotation()), m_pose.Rotation() + frc::Rotation2d{180_deg}};
 
@@ -284,22 +331,19 @@ void Turret::Periodic() {
 
         // get shooter velocity before robot velocity compensation
         double shooterVelocity = getShooterRPS(m_shotTableIndex) * 2 * 0.0254 * M_PI;
+        // get shooter RPS before robot vlocity compensation
+        double shooterRPS = getShooterRPS(m_shotTableIndex);
         // get hood angle before robot velocity compensation
         double hoodAngle = getHoodAngle(m_shotTableIndex);
 
         
         // Save Shot Solution (Uncompensated) 
-        ShotSetpoint shotSolutionRaw  = { turretToTargetAngle, 
-                                          getHoodAngle(m_shotTableIndex), 
-                                          getShooterRPS(m_shotTableIndex)};
-
-        // Save Shot Solution (Compensated for Robot speed/heading)
-        ShotSetpoint shotSolutionComp = getVelocityCompensatedShotSetpoint(turretToTargetAngle, hoodAngle, shooterVelocity);
-        double turretAngleComp = shotSolutionComp.turret_AngleDegrees - m_turretPose.Rotation().Degrees().value();
-        am::limitDegrees(turretAngleComp);
+        ShotSetpoint shotSolutionRaw  = { turretToTargetAngle, hoodAngle, shooterRPS }; 
+   
+        // Save Shot Solution (Compensate for Robot speed/heading)
+        ShotSetpoint shotSolutionComp = getVelocityCompensatedShotSetpoint(turretToTargetAngle, hoodAngle, shooterRPS);
 
         // output values to SmartDashboard for sanity check
-        frc::SmartDashboard::PutNumber("turretAngleComp", turretAngleComp);
         frc::SmartDashboard::PutNumber("hoodAngleComp", shotSolutionComp.hood_AngleDegrees);
         frc::SmartDashboard::PutNumber("shooterRPSComp", shotSolutionComp.shooter_RPS);
         frc::SmartDashboard::PutNumber("turretToTgtAngleComp", shotSolutionComp.turret_AngleDegrees);
@@ -810,7 +854,11 @@ double Turret::computeTurretToTgtAngleInDegrees(frc::Pose2d turretPose, frc::Tra
 }
 
 // make a robot velocity compensated vector for determining the turret angle, hood angle, and shooter velocity with compensation for the robot velocity.
-Turret::ShotSetpoint Turret::getVelocityCompensatedShotSetpoint(double robotToTargetAngle, double shooterVelocityMPS, double hoodAngleDegrees) {
+Turret::ShotSetpoint Turret::getVelocityCompensatedShotSetpoint(double robotToTargetAngle, double shooterRPS, double hoodAngleDegrees) {
+
+    // get shooter velocity before robot velocity compensation
+    double shooterVelocityMPS = shooterRPS * 2 * 0.0254 * M_PI;
+
     double hoodAngleRadians = hoodAngleDegrees * M_PI / 180;
     double robotToTargetAngleRadians = robotToTargetAngle * M_PI / 180;
     auto shooterHorizontalVelocityMPS = shooterVelocityMPS * sin(hoodAngleRadians);
@@ -826,7 +874,13 @@ Turret::ShotSetpoint Turret::getVelocityCompensatedShotSetpoint(double robotToTa
     double newHorizontalVelocity = hypot(shooterVelocityVectorMPS[0], shooterVelocityVectorMPS[1]);
     double newVerticalVelocity = shooterVelocityVectorMPS[2];
     double newHoodAngleDegrees = atan2(newHorizontalVelocity, newVerticalVelocity) * 180 / M_PI;
-    double newTurretAngleDegrees = atan2(shooterVelocityVectorMPS[1],shooterVelocityVectorMPS[0]);
+    double newTurretAngleDegreesComp = atan2(shooterVelocityVectorMPS[1],shooterVelocityVectorMPS[0]);
+
+     frc::SmartDashboard::PutNumber("turretAngleComp", newTurretAngleDegreesComp);
+
+    double newTurretAngleDegrees  = robotToTargetAngle + newTurretAngleDegreesComp;
+    am::limitDegrees(newTurretAngleDegrees);  
+
     double newShooterRPS = shooterVelocityVectorMPS.norm() / (2 * 0.0254 * M_PI);
     if (newHoodAngleDegrees < 10) {newHoodAngleDegrees = 10;}
     if (newHoodAngleDegrees > 50) {newHoodAngleDegrees = 50;}
