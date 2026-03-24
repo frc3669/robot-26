@@ -144,6 +144,9 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     // Ensure Intake Deploy Motor is in ZERO position.
     zeroizeIntakePosition ();
 
+    // RAISE the Intake to get it away from the Turret 
+    raiseIntake();   
+
     frc::SmartDashboard::PutNumber("ShooterRPS", m_shooterRPS);
     frc::SmartDashboard::PutNumber("FeederRPS",  m_feederRPS);
     frc::SmartDashboard::PutNumber("SpindexerRPS", m_spindexerRPS);
@@ -152,6 +155,13 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
 
     // Force Commands to go out to each motor
     m_isTurretClassConfigComplete = true;
+
+    frc2::cmd::Wait(0.25_s);  // Wait for Intake to raise up, before enbling Turret
+
+    // Turret is enabled at the start.
+    isTurretActive = true;
+    // Shot Table is enabled at the start
+    m_isShotTableEnabled = true;
 }  
  
 void Turret::SimulationPeriodic() {}
@@ -285,7 +295,7 @@ void Turret::Periodic() {
                 }
                 else {
                    if (m_pose.Y().value() < 158.0) {
-                  setTurretTarget (m_BLUE_Outpost);
+                      setTurretTarget (m_BLUE_Outpost);
                    } else {
                       setTurretTarget (m_BLUE_Depot);
                    }
@@ -453,7 +463,7 @@ void Turret::Periodic() {
         }
 
         // SET THE INTAKE (if enabled) for proper intake into the Spindexer
-        if (isIntakeActive && isIntakeDeployed) {         
+        if (isIntakeActive) {         
             setIntakeRPS ();
         }      
     }
@@ -765,7 +775,7 @@ void Turret::retractIntake () {
 }
 
 void Turret::raiseIntake () {
-    isIntakeActive = false;
+    isIntakeActive = true;
     isIntakeDeployed = false;
 
     // Disable the Intake and Raise Up (do not fully retract)

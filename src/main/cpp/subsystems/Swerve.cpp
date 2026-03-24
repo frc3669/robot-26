@@ -261,7 +261,7 @@ void Swerve::resetPose(frc::Pose2d newPose) {
                                     m_backRight.GetPosition()},
                                   newPose);
     if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
-         LimelightHelpers::SetRobotOrientation("limelight-left", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
+        LimelightHelpers::SetRobotOrientation("limelight-left", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-right", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers::SetRobotOrientation("limelight-back", newPose.Rotation().Degrees().value(), 0.0, 0.0, 0.0, 0.0, 0.0);
     } else {

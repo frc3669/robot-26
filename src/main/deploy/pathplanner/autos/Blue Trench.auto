@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake DEPLOY"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopEnd ON"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BTB-NZTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NZTop-NZBot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NZBot-BO"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BO-BTStep1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BTStep1-BTStep2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

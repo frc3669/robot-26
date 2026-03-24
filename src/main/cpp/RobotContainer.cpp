@@ -62,8 +62,6 @@ void RobotContainer::RegisterNamedCommands() {
   NamedCommands::registerCommand("Intake DEPLOY",  m_turret.cmdDeployIntake());
   NamedCommands::registerCommand("Intake RAISE",   m_turret.cmdRaiseIntake());
   NamedCommands::registerCommand("Intake RETRACT", m_turret.cmdRetractIntake());
-  NamedCommands::registerCommand("Turret ON",  m_turret.cmdOnTurret());
-  NamedCommands::registerCommand("Turret OFF", m_turret.cmdOffTurret());
   NamedCommands::registerCommand("TopEnd ON",  m_turret.cmdOnTopEnd());
   NamedCommands::registerCommand("TopEnd OFF", m_turret.cmdOffTopEnd());
 
@@ -73,13 +71,18 @@ void RobotContainer::RegisterNamedCommands() {
 }
 
 void RobotContainer::ConfigureChooser() {
-  //m_centerAuto = PathPlannerAuto("Score Coral").ToPtr();
-  //if (m_centerAuto.has_value()) {
-  //  m_chooser.SetDefaultOption("Center Auto", m_centerAuto.value().get());
-  //} else {
-  //  clog << "failed to get Center Auto\n";
-  //}
-  //frc::SmartDashboard::PutData(&m_chooser);
+  m_centerAuto = PathPlannerAuto("Score Coral").ToPtr();
+  m_blueTrench = PathPlannerAuto("Blue Trench").ToPtr();
+  m_blueDepot = PathPlannerAuto("Blue Depot").ToPtr();
+  
+  if (m_centerAuto.has_value()) {
+    m_chooser.SetDefaultOption("Center Auto", m_centerAuto.value().get());
+    m_chooser.AddOption("Blue Trench", m_blueTrench.value().get());
+    m_chooser.AddOption("Blue Depot", m_blueDepot.value().get());
+  } else {
+    clog << "failed to get Center Auto\n";
+  }
+  frc::SmartDashboard::PutData(&m_chooser);
 
   m_turret.m_shooterTgtChooser.SetDefaultOption("BLUEHub", "BLUEHub");
   m_turret.m_shooterTgtChooser.AddOption("BLUEDepot", "BLUEDepot");

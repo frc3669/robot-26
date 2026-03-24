@@ -85,7 +85,7 @@ class Turret : public frc2::SubsystemBase {
 
     // Deploy and Raise Positions for Intake Deploy Motor (TBD)
     double m_intakeDeployPosition = 18.0;
-    double m_intakeRaisePosition  = 10.0;
+    double m_intakeRaisePosition  =  8.0;
   
     // 
     // The currently selected turret target position
@@ -134,8 +134,8 @@ class Turret : public frc2::SubsystemBase {
     double m_turretTurns = 0;
     double m_turretAngle = 0.0;   // Testing
     double MAX_TURRET_ROTATION_ANGLE = 180;    // Used for calculating the desired turret angle +/- 180
-    double m_MinTurretAngle = -90.0;           // MIN CCW  - Actual Limit which we can command
-    double m_MaxTurretAngle = 90.0;            // MAX CW   - Actual Limit which we can command
+    double m_MinTurretAngle = -180.0;          // MIN CCW  - Actual Limit which we can command
+    double m_MaxTurretAngle = 180.0;           // MAX CW   - Actual Limit which we can command
 
     // Hood Motor (Position - ZERO to +VAL)
     ctre::phoenix6::hardware::TalonFX hoodMotor{42, ctre::phoenix6::CANBus("Main CAN")};

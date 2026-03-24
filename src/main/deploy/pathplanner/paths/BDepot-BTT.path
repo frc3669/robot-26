@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.6116100178890873,
+        "y": 6.00638640429338
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.8409726302776798,
+        "y": 5.906923888548602
+      },
+      "isLocked": false,
+      "linkedName": "BlueDepot"
+    },
+    {
+      "anchor": {
+        "x": 2.0069946332737025,
+        "y": 6.460697674418604
+      },
+      "prevControl": {
+        "x": 1.7910499080490938,
+        "y": 6.334729918037583
+      },
+      "nextControl": {
+        "x": 2.2452523590868148,
+        "y": 6.599681347809585
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.8080143112701252,
+        "y": 7.450447227191413
+      },
+      "prevControl": {
+        "x": 1.958318425760286,
+        "y": 6.493148479427549
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "BTT"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.13,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 0.4,
+        "y": 5.5
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.5,
+      "maxWaypointRelativePos": 1.5,
+      "name": "Point Towards Zone"
+    }
+  ],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 1.5911402711946405
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

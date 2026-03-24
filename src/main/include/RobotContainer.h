@@ -46,6 +46,8 @@ class RobotContainer {
 
   // autonomous routines
   std::optional<frc2::CommandPtr> m_centerAuto;
+  std::optional<frc2::CommandPtr> m_blueTrench;
+  std::optional<frc2::CommandPtr> m_blueDepot;
 
   frc::SendableChooser<frc2::Command*> m_chooser;
 
