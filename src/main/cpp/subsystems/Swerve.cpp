@@ -290,7 +290,7 @@ void Swerve::UpdateVision(const std::string& name) {
         frc::Pose2d visionPose2d = llPose.pose;
         frc::SmartDashboard::PutNumber(name+" X= ", visionPose2d.X().value());
         frc::SmartDashboard::PutNumber(name+" Y= ", visionPose2d.Y().value());
-        frc::SmartDashboard::PutNumber(name+" A= ", visionPose2d.Rotation().Degrees().value());
+        //frc::SmartDashboard::PutNumber(name+" A= ", visionPose2d.Rotation().Degrees().value());
 
         // Get the correct timestamp. The helper function provides an FPGA-timestamp-aligned value.
         units::second_t imageCaptureTime = units::second_t{llPose.timestampSeconds};

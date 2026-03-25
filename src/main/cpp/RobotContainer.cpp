@@ -130,8 +130,8 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
 
 void RobotContainer::DisplaySchedulerDetails() {
-  frc::SmartDashboard::PutData("Command Scheduler Status", &frc2::CommandScheduler::GetInstance());
-  frc::SmartDashboard::PutData("Swerve Status", &m_drive);
+  //frc::SmartDashboard::PutData("Command Scheduler Status", &frc2::CommandScheduler::GetInstance());
+  //frc::SmartDashboard::PutData("Swerve Status", &m_drive);
   //frc::SmartDashboard::PutData("Scoring Mechanism Status", &m_scoringMech);
   //frc::SmartDashboard::PutData("Climb Status", &m_climber);
 

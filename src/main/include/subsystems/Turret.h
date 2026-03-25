@@ -80,8 +80,8 @@ class Turret : public frc2::SubsystemBase {
     double m_spindexerRPS = 3.4;
 
     // RPS setting for Intake Motors (TBD)
-    double m_intakeUpperRPS = 40;
-    double m_intakeLowerRPS = 20;
+    double m_intakeUpperRPS = 35;
+    double m_intakeLowerRPS = 15;
 
     // Deploy and Raise Positions for Intake Deploy Motor (TBD)
     double m_intakeDeployPosition = 18.0;
