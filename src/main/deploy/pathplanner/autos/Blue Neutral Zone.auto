@@ -15,6 +15,24 @@
           "data": {
             "pathName": "NZTop-NZBot"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NZBot-NZHubTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NZHubTop-NZTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NZTop-NZBot"
+          }
         }
       ]
     }

@@ -8,29 +8,29 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.0146690518783545,
-        "y": 1.625527728085867
+        "x": 5.138497316636851,
+        "y": 1.1549910554561713
       },
       "isLocked": false,
       "linkedName": "NeutralZoneBottom"
     },
     {
       "anchor": {
-        "x": 6.306726296958854,
-        "y": 6.915008944543827
+        "x": 5.933542039355992,
+        "y": 7.0123613595706615
       },
       "prevControl": {
-        "x": 6.339177101967799,
-        "y": 5.616976744186046
+        "x": 5.965992844364937,
+        "y": 5.71432915921288
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "NZHubTop"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4117647058823537,
+      "waypointRelativePos": 0.1524064171122993,
       "rotationDegrees": 98.01572441094677
     }
   ],
@@ -47,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 85.07289005235099
+    "rotation": 91.73570458892836
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -93.81407483429028
   },
   "useDefaultConstraints": true
 }

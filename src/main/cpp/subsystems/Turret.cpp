@@ -908,7 +908,7 @@ void Turret::enableFeederOperation ()     { startFeeder();    }
 void Turret::enableSpindexerOperation ()  { startSpindexer(); }
 void Turret::deployIntakeOperation ()     { deployIntake();   }
 void Turret::raiseIntakeOperation ()      { raiseIntake();    }
-void Turret::enableTopEndOperation ()     { startHood(); startShooter(); startFeeder(); startSpindexer(); isTopEndActive = true; }
+void Turret::enableTopEndOperation ()     { startHood(); startShooter(); startHood(); startFeeder(); startSpindexer(); isTopEndActive = true; }
 
 void Turret::disableTurretOperation ()    { stopTurret();     }
 void Turret::disableHoodOperation ()      { stopHood();       }
@@ -916,7 +916,7 @@ void Turret::disableShooterOperation ()   { stopShooter();    }
 void Turret::disableFeederOperation ()    { stopFeeder();     }
 void Turret::disableSpindexerOperation () { stopSpindexer();  }
 void Turret::retractIntakeOperation ()    { retractIntake();  }
-void Turret::disableTopEndOperation ()    { stopSpindexer(); stopFeeder(); stopShooter(); stopHood(); isTopEndActive = false; }
+void Turret::disableTopEndOperation ()    { stopSpindexer(); stopSpindexer(); stopFeeder(); stopHood(); stopShooter(); isTopEndActive = false; }
 
 
 
