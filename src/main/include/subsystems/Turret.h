@@ -119,7 +119,7 @@ class Turret : public frc2::SubsystemBase {
     // Variable to assist in limiting when motors get commanded
     bool   m_isTurretClassConfigComplete = false;
     double m_lastCmdTurretAngle = 0;   
-    bool   m_lastCmdIsSmallAngle = true; 
+    bool   m_lastCfgIsSmallAngle = true;  // Initial Turret Config is for Small Angle
     double m_lastCmdHoodAngle = 0;   
     double m_lastCmdShooterRPS = 0;
     double m_lastCmdFeederRPS = 0;

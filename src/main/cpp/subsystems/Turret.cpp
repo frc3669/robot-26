@@ -41,17 +41,11 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     configTurretMotor.MotionMagic.MotionMagicAcceleration = 0_tr_per_s_sq; // acceleration  (ramp)
     configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;       // velocity  (once ramp up)
     configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.12; // Speed per unit of voltage (rotations/sec/V)
-    configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V) 
-    // LARGE ANGLE configuration settings
-    //configTurretMotor.MotionMagic.MotionMagicAcceleration = 10000_tr_per_s_sq; // acceleration  (ramp)
-    //configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
-    //configTurretMotor.MotionMagic.MotionMagicExpo_kV = (ctre::unit::volts_per_turn_per_second_t) 0.003; // Speed per unit of voltage (rotations/sec/V)
-    //configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
- 
+    configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V)  
     // Apply Configuration 
     turretMotor.GetConfigurator().Apply(configTurretMotor);
+    m_lastCfgIsSmallAngle = true;
 
- 
     // Hood Motor (Position)
     configHoodMotor.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake; 
     configHoodMotor.Slot0.kP = 4.8;
@@ -161,7 +155,7 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     // Turret is enabled at the start.
     isTurretActive = true;
     // Shot Table is enabled at the start
-    m_isShotTableEnabled = true;
+    m_isShotTableEnabled = false;
 }  
  
 void Turret::SimulationPeriodic() {}
@@ -386,12 +380,12 @@ void Turret::Periodic() {
             }
  
             // Limit Turret Angle changes to >= 0.2 degrees
-            if (units::math::abs<units::degree_t>((units::degree_t)(turretAngle - m_lastCmdTurretAngle)) >= 0.2_deg) 
-            {           
+            //if (units::math::abs<units::degree_t>((units::degree_t)(turretAngle - m_lastCmdTurretAngle)) >= 0.2_deg) 
+            //{           
                // Point Turret to the Requested Angle
                setTurretPosition(turretAngle);
                m_lastCmdTurretAngle = turretAngle;
-            }       
+            //}       
         }
         // SET THE HOOD (if enabled) for proper shooting angle to the target
         if (isHoodActive) {
@@ -477,15 +471,6 @@ void Turret::Periodic() {
 // *** TURRET ***
  void Turret::setTurretPosition (double angle) {
 
-    // *****
-    // Determine whether SMALL or LARGE angle change (> TBD degrees, e.g. 45) for the turret
-    bool isSmallAngle = true;
-    if (units::math::abs<units::degree_t>((units::degree_t)(angle - m_lastCmdTurretAngle)) >= 45.0_deg) {
-        isSmallAngle = false;  // TRUE by default
-    }
-    // NOTE: Update LAST commanded angle information after information has been used. (See Below)
-    // *****
-
     // NOTE: angle is for CCW coordinate system.
     // NOTE: turns for motor need to go the opposite direction
     // NOTE: Therefore, we change the sign of the requested angle 
@@ -520,8 +505,26 @@ void Turret::Periodic() {
     double turretTurns = mechRotations * m_turretGearRatio;
     units::angle::turn_t turns = (units::angle::turn_t) turretTurns;
 
+    // Get the motor position (turns) and compare to current commanded position (turns).
+    // If the motor is not close to the requested turn position, use the LARGE angle configuration.
+    units::angle::turn_t currentPositionTurns = turretMotor.GetPosition().GetValue();  // Actual Position NOW
+    double deltaTurns = (double) units::math::abs<units::degree_t>((units::degree_t) ((double) currentPositionTurns - (double) turns));                // Actual minus Requested
+    bool isSmallAngle = true;
+    if (deltaTurns > 1.4) isSmallAngle = false;
+
+    // ***** TESTING Motor Configuration (AS NEEDED ONLY)
+    //frc::SmartDashboard::PutNumber("CurrPosTurns", (double) currentPositionTurns);
+    //frc::SmartDashboard::PutNumber("RequestTurns", (double) turns);
+    //frc::SmartDashboard::PutNumber("DeltaTurns", (double) deltaTurns);
+    //frc::SmartDashboard::PutNumber("SmallAngle", (double) isSmallAngle);
+    //frc::SmartDashboard::PutNumber("LastCFGisSmallAngle", (double) m_lastCfgIsSmallAngle);
+
     // ***** REFRESH Motor Configuration (AS NEEDED ONLY) for SMALL or LARGE angle operation.
-    if (isSmallAngle && (!m_lastCmdIsSmallAngle)) {
+    // 1.4 turns equates to about 10 degrees.  Anything greater is considered a large angle.
+    // SMALL angle configuration moves the turret more smoothly.
+    // LARGE angle configuration moves the turret very quickly, as is needed to point to the target
+    if (isSmallAngle && (!m_lastCfgIsSmallAngle))  {
+       m_lastCfgIsSmallAngle = true;
        // Refresh config for SMALL angle configuration (was LARGE previously)
        configTurretMotor.MotionMagic.MotionMagicAcceleration = 0_tr_per_s_sq; // acceleration  (ramp)
        configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 6_tps;       // velocity  (once ramp up)
@@ -529,7 +532,8 @@ void Turret::Periodic() {
        configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.1; // Acceleration per unit of voltage (rotations/sec^2/V) 
        turretMotor.GetConfigurator().Apply(configTurretMotor.MotionMagic);
     } 
-    else if (!isSmallAngle && m_lastCmdIsSmallAngle) {
+    else if (!isSmallAngle && m_lastCfgIsSmallAngle) {
+       m_lastCfgIsSmallAngle = false;
        // Refresh config for LARGE angle configuration (was SMALL previously)
        configTurretMotor.MotionMagic.MotionMagicAcceleration = 11000_tr_per_s_sq; // acceleration  (ramp)
        configTurretMotor.MotionMagic.MotionMagicCruiseVelocity = 16000_tps;       // velocity  (once ramp up)
@@ -537,9 +541,6 @@ void Turret::Periodic() {
        configTurretMotor.MotionMagic.MotionMagicExpo_kA = (ctre::unit::volts_per_turn_per_second_squared_t)0.02; // Acceleration per unit of voltage (rotations/sec^2/V)
        turretMotor.GetConfigurator().Apply(configTurretMotor.MotionMagic);       
     }
- 
-    // Update LAST commanded angle information with CURRENT information
-    m_lastCmdIsSmallAngle = isSmallAngle;
 
     ctre::phoenix6::controls::MotionMagicExpoVoltage m_turretRequest{0_tr};
     // Move the turret the desired number of turns, matching the requested angle
@@ -775,7 +776,7 @@ void Turret::retractIntake () {
 }
 
 void Turret::raiseIntake () {
-    isIntakeActive = true;
+    isIntakeActive = false;
     isIntakeDeployed = false;
 
     // Disable the Intake and Raise Up (do not fully retract)
