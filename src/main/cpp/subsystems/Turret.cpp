@@ -155,7 +155,7 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     // Turret is enabled at the start.
     isTurretActive = true;
     // Shot Table is enabled at the start
-    m_isShotTableEnabled = false;
+    m_isShotTableEnabled = true;
 }  
  
 void Turret::SimulationPeriodic() {}
@@ -776,7 +776,7 @@ void Turret::retractIntake () {
 }
 
 void Turret::raiseIntake () {
-    isIntakeActive = false;
+    isIntakeActive = true;      // Leave the Intake Motors running
     isIntakeDeployed = false;
 
     // Disable the Intake and Raise Up (do not fully retract)

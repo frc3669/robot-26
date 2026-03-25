@@ -12,7 +12,7 @@
         "y": 6.476923076923076
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BlueTrenchTop"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 6.00638640429338
       },
       "prevControl": {
-        "x": 3.48350626118068,
-        "y": 6.233542039355992
+        "x": 3.483508061605532,
+        "y": 6.233519275694066
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,20 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Intake DEPLOY",
+      "waypointRelativePos": 0.15254237288135597,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "TopEnd ON",
+      "waypointRelativePos": 0.3254237288135594,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

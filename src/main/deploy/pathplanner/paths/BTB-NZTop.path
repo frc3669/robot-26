@@ -68,7 +68,20 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Intake DEPLOY",
+      "waypointRelativePos": 0.19322033898305085,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "TopEnd ON",
+      "waypointRelativePos": 0.44745762711864423,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
