@@ -71,16 +71,21 @@ void RobotContainer::RegisterNamedCommands() {
 }
 
 void RobotContainer::ConfigureChooser() {
-  m_centerAuto = PathPlannerAuto("Score Coral").ToPtr();
   m_blueTrench = PathPlannerAuto("Blue Trench").ToPtr();
-  m_blueDepot = PathPlannerAuto("Blue Depot").ToPtr();
+  //m_blueNeutralZone = PathPlannerAuto("Blue Neutral Zone").ToPtr();
+  //m_blueDepot = PathPlannerAuto("Blue Depot").ToPtr();
+  m_redTrench = PathPlannerAuto("Red Trench").ToPtr();
+  //m_redNeutralZone = PathPlannerAuto("Red Neutral Zone").ToPtr();
+  //m_redDepot = PathPlannerAuto("Red Depot").ToPtr();
   
-  if (m_centerAuto.has_value()) {
-    m_chooser.SetDefaultOption("Center Auto", m_centerAuto.value().get());
-    m_chooser.AddOption("Blue Trench", m_blueTrench.value().get());
-    m_chooser.AddOption("Blue Depot", m_blueDepot.value().get());
-  } else {
-    clog << "failed to get Center Auto\n";
+  if (m_blueTrench.has_value() &&  m_redTrench.has_value()) {
+    m_chooser.SetDefaultOption("Blue Trench", m_blueTrench.value().get());
+    //m_chooser.AddOption("Blue Neutral Zone", m_blueNeutralZone.value().get());
+    //m_chooser.AddOption("Blue Depot", m_blueDepot.value().get());
+    m_chooser.AddOption("Red Trench", m_redTrench.value().get());
+  } 
+  else {
+    clog << "failed to get Autonomous Paths\n";
   }
   frc::SmartDashboard::PutData(&m_chooser);
 

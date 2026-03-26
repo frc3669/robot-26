@@ -101,7 +101,7 @@ class Turret : public frc2::SubsystemBase {
     frc::Translation2d m_RED_Depot   {559.0_in,   80.0_in};
     // Target Selection Mode 
     // Manual OR Automatic 
-    bool m_isManualTgtSelection = true;
+    bool m_isManualTgtSelection = false;
 
     // Set/Get Turret Target Location (X,Y)
     void setTurretTarget (frc::Translation2d theShooterTarget); 

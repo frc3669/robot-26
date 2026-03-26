@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.933542039355992,
-        "y": 7.0123613595706615
+        "x": 7.55608228980322,
+        "y": 1.1063148479427547
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.849586559903939,
-        "y": 6.967309989707648
+        "x": 7.629925265143223,
+        "y": 3.35083189639134
       },
       "isLocked": false,
-      "linkedName": "BNZHubTop"
+      "linkedName": "BlueNZBottom"
     },
     {
       "anchor": {
-        "x": 7.507406082289803,
-        "y": 6.882558139534883
+        "x": 7.620983899821109,
+        "y": 3.767280858676207
       },
       "prevControl": {
-        "x": 6.507406082289803,
-        "y": 6.882558139534883
+        "x": 7.612931092300009,
+        "y": 3.1085055560850705
+      },
+      "nextControl": {
+        "x": 7.633594530556761,
+        "y": 4.798917596171396
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.620983899821109,
+        "y": 6.412021466905187
+      },
+      "prevControl": {
+        "x": 7.559643241829846,
+        "y": 5.21510349740372
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BlueNZTop"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -88.02506598911796
+    "rotation": 93.09405805891704
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 91.73570458892836
+    "rotation": 87.43622978853492
   },
   "useDefaultConstraints": true
 }

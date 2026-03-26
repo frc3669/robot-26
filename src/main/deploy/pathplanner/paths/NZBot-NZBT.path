@@ -3,53 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.620983899821109,
-        "y": 0.9440608228980318
+        "x": 7.588533094812165,
+        "y": 0.9602862254025035
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.976550798696426,
-        "y": 0.42689602555923745
+        "x": 7.075961923717852,
+        "y": 0.6741494336724352
       },
       "isLocked": false,
-      "linkedName": "NeutralZoneBottom"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.77386404293381,
-        "y": 0.7169051878354196
+        "x": 5.609033989266547,
+        "y": 0.7006797853309479
       },
       "prevControl": {
-        "x": 0.274250534705945,
-        "y": 0.7535257075024515
+        "x": 5.359649076247278,
+        "y": 0.7182059132082498
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "BlueOutpost"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.24598930481283418,
+      "waypointRelativePos": 0.1898395721925135,
       "rotationDegrees": -179.50452557972577
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "TopEnd OFF",
-      "waypointRelativePos": 0.11525423728813564,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "TopEnd ON",
-      "waypointRelativePos": 0.42372881355932224,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

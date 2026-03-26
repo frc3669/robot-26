@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BT-PassNZ"
+            "pathName": "RT-PassNZ"
           }
         },
         {
@@ -49,25 +49,61 @@
         {
           "type": "path",
           "data": {
-            "pathName": "PassNZ-NZBot"
+            "pathName": "RNZTop-RNZBot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NZBot-NZTop"
+            "pathName": "RNZBot-RNZHubBot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NZTop-NZBot"
+            "pathName": "RNZHubBot-RNZHubTop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopEnd OFF"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.4
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NZBot-NZHubTop"
+            "pathName": "RNZ-PassRT"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopEnd ON"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RT-ROutpost"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RO-RTStep1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RTStep1-RTStep2"
           }
         }
       ]

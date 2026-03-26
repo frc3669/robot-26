@@ -5,6 +5,18 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Intake DEPLOY"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopEnd ON"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "BlueHub-BDepot"
@@ -13,37 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BDepot-BTT"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BTTop-NZTop"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NZTop-NZLow"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NZBot-BO"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BO-BTStep1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BTStep1-BTStep2"
+            "pathName": "BDepot-BTTop"
           }
         }
       ]

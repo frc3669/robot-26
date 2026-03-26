@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.933542039355992,
-        "y": 7.0123613595706615
+        "x": 8.967692307692309,
+        "y": 1.950035778175312
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.849586559903939,
-        "y": 6.967309989707648
+        "x": 9.930023200574196,
+        "y": 2.1172612946586695
       },
       "isLocked": false,
-      "linkedName": "BNZHubTop"
+      "linkedName": "RNZBot"
     },
     {
       "anchor": {
-        "x": 7.507406082289803,
-        "y": 6.882558139534883
+        "x": 10.62268336314848,
+        "y": 0.7818067978533088
       },
       "prevControl": {
-        "x": 6.507406082289803,
-        "y": 6.882558139534883
+        "x": 10.328889685801418,
+        "y": 0.7490257479339182
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "RNZHubBot"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -88.02506598911796
+    "rotation": 91.97493401088225
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 91.73570458892836
+    "rotation": -88.36342295838323
   },
   "useDefaultConstraints": true
 }

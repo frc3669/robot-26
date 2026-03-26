@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.620983899821109,
-        "y": 0.9440608228980318
+        "x": 7.588533094812165,
+        "y": 0.9602862254025035
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.138497316636851,
-        "y": 1.1549910554561713
+        "x": 5.106046511627907,
+        "y": 1.171216457960643
       },
       "isLocked": false,
-      "linkedName": "NeutralZoneBottom"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -25,7 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "NZHubTop"
+      "linkedName": "BNZHubTop"
     }
   ],
   "rotationTargets": [

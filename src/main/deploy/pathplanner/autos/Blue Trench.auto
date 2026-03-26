@@ -11,12 +11,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "TopEnd ON"
@@ -37,13 +31,31 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.4
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BTB-NZTop"
+            "pathName": "BT-PassNZ"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopEnd ON"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "PassNZ-NZBot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NZBot-NZTop"
           }
         },
         {
@@ -55,7 +67,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "NZBot-BO"
+            "pathName": "NZBot-NZBT"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopEnd OFF"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.4
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NZ-PassBT"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "TopEnd ON"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BT-BO"
           }
         },
         {
