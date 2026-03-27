@@ -72,17 +72,16 @@ void RobotContainer::RegisterNamedCommands() {
 
 void RobotContainer::ConfigureChooser() {
   m_blueTrench = PathPlannerAuto("Blue Trench").ToPtr();
-  //m_blueNeutralZone = PathPlannerAuto("Blue Neutral Zone").ToPtr();
-  //m_blueDepot = PathPlannerAuto("Blue Depot").ToPtr();
-  m_redTrench = PathPlannerAuto("Red Trench").ToPtr();
-  //m_redNeutralZone = PathPlannerAuto("Red Neutral Zone").ToPtr();
-  //m_redDepot = PathPlannerAuto("Red Depot").ToPtr();
+  m_blueDepot  = PathPlannerAuto("Blue Depot").ToPtr();
+  m_redTrench  = PathPlannerAuto("Red Trench").ToPtr();
+  m_redDepot   = PathPlannerAuto("Red Depot").ToPtr();
   
-  if (m_blueTrench.has_value() &&  m_redTrench.has_value()) {
+  if (m_blueTrench.has_value() &&  m_redTrench.has_value() &&
+      m_blueDepot.has_value()  &&  m_redDepot.has_value()) {
     m_chooser.SetDefaultOption("Blue Trench", m_blueTrench.value().get());
-    //m_chooser.AddOption("Blue Neutral Zone", m_blueNeutralZone.value().get());
-    //m_chooser.AddOption("Blue Depot", m_blueDepot.value().get());
+    m_chooser.AddOption("Blue Depot", m_blueDepot.value().get());
     m_chooser.AddOption("Red Trench", m_redTrench.value().get());
+    m_chooser.AddOption("Red Depoy", m_redDepot.value().get());
   } 
   else {
     clog << "failed to get Autonomous Paths\n";

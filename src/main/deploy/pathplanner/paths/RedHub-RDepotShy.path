@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 10.62268336314848,
-        "y": 0.7818067978533088
+        "x": 13.040268336314847,
+        "y": 2.128515205724508
       },
       "prevControl": null,
       "nextControl": {
-        "x": 10.314400715563506,
-        "y": 4.108014311270125
+        "x": 14.04026833631485,
+        "y": 2.128515205724508
       },
       "isLocked": false,
-      "linkedName": "RNZHubBot"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 10.249499105545617,
-        "y": 6.85010733452594
+        "x": 15.198246869409662,
+        "y": 2.128515205724508
       },
       "prevControl": {
-        "x": 10.281949910554562,
-        "y": 6.022611806797853
+        "x": 14.198246869409662,
+        "y": 2.128515205724508
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "RedDepotShy"
     }
   ],
   "rotationTargets": [],
@@ -33,22 +33,22 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.6,
-    "maxAcceleration": 0.6,
-    "maxAngularVelocity": 0.6,
-    "maxAngularAcceleration": 0.6,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 88.21008939175387
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 91.97493401088225
+    "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

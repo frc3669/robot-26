@@ -63,48 +63,6 @@
           "data": {
             "pathName": "RNZHubBot-RNZHubTop"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TopEnd OFF"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RNZ-PassRT"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TopEnd ON"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RT-ROutpost"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RO-RTStep1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RTStep1-RTStep2"
-          }
         }
       ]
     }

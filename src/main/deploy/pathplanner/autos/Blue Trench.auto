@@ -63,54 +63,6 @@
           "data": {
             "pathName": "NZTop-NZBot"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NZBot-NZBT"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TopEnd OFF"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NZ-PassBT"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TopEnd ON"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BT-BO"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BO-BTStep1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BTStep1-BTStep2"
-          }
         }
       ]
     }

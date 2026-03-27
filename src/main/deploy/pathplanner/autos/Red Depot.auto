@@ -17,57 +17,27 @@
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TopEnd OFF"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
+            "pathName": "RedHub-RDepotShy"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BT-PassNZ"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "TopEnd ON"
+            "pathName": "RedDepotShy-RDepot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "PassNZ-NZBot"
+            "pathName": "RDepot-RTBot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NZBot-NZTop"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NZTop-NZBot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NZBot-NZHubTop"
+            "pathName": "RTBot-RTTop"
           }
         }
       ]

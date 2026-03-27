@@ -19,13 +19,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BlueHub-BDepot"
+            "pathName": "BlueHub-BDepotShy"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BDepotShy-BDepot"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "BDepot-BTTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BlueTrenchTop-BlueBottom"
           }
         }
       ]
