@@ -16,6 +16,7 @@
 #include <pathplanner/lib/events/EventTrigger.h>
 
 using namespace pathplanner;
+using namespace MainConst;
 
 RobotContainer::RobotContainer() {
   // Configure the button bindings
@@ -32,6 +33,11 @@ void RobotContainer::ConfigureBindings() {
   m_XKeys.Button(3).OnTrue(m_turret.cmdRaiseIntake());
   m_XKeys.Button(4).OnTrue(m_turret.cmdRetractIntake());
   m_XKeys.Button(5).OnTrue(m_turret.cmdDeployIntake());
+
+  m_XKeys.Button(13).OnTrue(m_turret.cmdReverseIntake());
+  m_XKeys.Button(14).OnTrue(m_turret.cmdRevTopEnd());
+  m_XKeys.Button(15).OnTrue(m_turret.cmdManualOperation());
+  m_XKeys.Button(16).OnTrue(m_turret.cmdIntakeON_OFF());
 
   // scoring mechanism button bindings
   //m_XKeys.Button(9).OnTrue(GeneralCmds::IntakeSafely(m_drive, m_scoringMech));
@@ -71,17 +77,12 @@ void RobotContainer::RegisterNamedCommands() {
 }
 
 void RobotContainer::ConfigureChooser() {
+
   m_blueTrench = PathPlannerAuto("Blue Trench").ToPtr();
   m_blueDepot  = PathPlannerAuto("Blue Depot").ToPtr();
-  m_redTrench  = PathPlannerAuto("Red Trench").ToPtr();
-  m_redDepot   = PathPlannerAuto("Red Depot").ToPtr();
-  
-  if (m_blueTrench.has_value() &&  m_redTrench.has_value() &&
-      m_blueDepot.has_value()  &&  m_redDepot.has_value()) {
+  if (m_blueTrench.has_value() &&  m_blueDepot.has_value()) {
     m_chooser.SetDefaultOption("Blue Trench", m_blueTrench.value().get());
     m_chooser.AddOption("Blue Depot", m_blueDepot.value().get());
-    m_chooser.AddOption("Red Trench", m_redTrench.value().get());
-    m_chooser.AddOption("Red Depoy", m_redDepot.value().get());
   } 
   else {
     clog << "failed to get Autonomous Paths\n";
@@ -97,27 +98,29 @@ void RobotContainer::ConfigureChooser() {
   frc::SmartDashboard::PutData(&m_turret.m_shooterTgtChooser);
 
   m_turret.m_cmdActionChooser.SetDefaultOption("NoAction", "NoAction");
-  m_turret.m_cmdActionChooser.AddOption("IntakeRETRACT",  "IntakeRETRACT"); 
-  m_turret.m_cmdActionChooser.AddOption("IntakeRAISE",    "IntakeRAISE"); 
-  m_turret.m_cmdActionChooser.AddOption("IntakeDEPLOY",   "IntakeDEPLOY");
+  m_turret.m_cmdActionChooser.AddOption("IntakeRETRACT", "IntakeRETRACT"); 
+  m_turret.m_cmdActionChooser.AddOption("IntakeRAISE",   "IntakeRAISE"); 
+  m_turret.m_cmdActionChooser.AddOption("IntakeDEPLOY",  "IntakeDEPLOY");
   m_turret.m_cmdActionChooser.AddOption("IntakeENABLE",  "IntakeENABLE");
-  m_turret.m_cmdActionChooser.AddOption("IntakeDISABLE","IntakeDISABLE");
-  m_turret.m_cmdActionChooser.AddOption("SpindexerOFF", "SpindexerOFF");
-  m_turret.m_cmdActionChooser.AddOption("SpindexerON",  "SpindexerON");
-  m_turret.m_cmdActionChooser.AddOption("FeederOFF",    "FeederOFF");
-  m_turret.m_cmdActionChooser.AddOption("FeederON",     "FeederON");
-  m_turret.m_cmdActionChooser.AddOption("ShooterOFF",   "ShooterOFF");
-  m_turret.m_cmdActionChooser.AddOption("ShooterON",    "ShooterON");
-  m_turret.m_cmdActionChooser.AddOption("HoodOFF",      "HoodOFF");
-  m_turret.m_cmdActionChooser.AddOption("HoodON",       "HoodON");
-  m_turret.m_cmdActionChooser.AddOption("TurretOFF",    "TurretOFF");
-  m_turret.m_cmdActionChooser.AddOption("TurretON",     "TurretON");
-  m_turret.m_cmdActionChooser.AddOption("TopEndOFF",    "TopEndOFF");
-  m_turret.m_cmdActionChooser.AddOption("TopEndON",     "TopEndON");
-  m_turret.m_cmdActionChooser.AddOption("ShotTableOFF", "ShotTableOFF");
-  m_turret.m_cmdActionChooser.AddOption("ShotTableON",  "ShotTableON");
-  m_turret.m_cmdActionChooser.AddOption("CompOFF",      "CompOFF");
-  m_turret.m_cmdActionChooser.AddOption("CompON",       "CompON");
+  m_turret.m_cmdActionChooser.AddOption("IntakeDISABLE", "IntakeDISABLE");
+  m_turret.m_cmdActionChooser.AddOption("IntakeREV",     "IntakeREV");
+  m_turret.m_cmdActionChooser.AddOption("SpindexerOFF",  "SpindexerOFF");
+  m_turret.m_cmdActionChooser.AddOption("SpindexerON",   "SpindexerON");
+  m_turret.m_cmdActionChooser.AddOption("FeederOFF",     "FeederOFF");
+  m_turret.m_cmdActionChooser.AddOption("FeederON",      "FeederON");
+  m_turret.m_cmdActionChooser.AddOption("ShooterOFF",    "ShooterOFF");
+  m_turret.m_cmdActionChooser.AddOption("ShooterON",     "ShooterON");
+  m_turret.m_cmdActionChooser.AddOption("HoodOFF",       "HoodOFF");
+  m_turret.m_cmdActionChooser.AddOption("HoodON",        "HoodON");
+  m_turret.m_cmdActionChooser.AddOption("TurretOFF",     "TurretOFF");
+  m_turret.m_cmdActionChooser.AddOption("TurretON",      "TurretON");
+  m_turret.m_cmdActionChooser.AddOption("TopEndOFF",     "TopEndOFF");
+  m_turret.m_cmdActionChooser.AddOption("TopEndON",      "TopEndON");
+  m_turret.m_cmdActionChooser.AddOption("TopEndREV",     "TopEndREV");
+  m_turret.m_cmdActionChooser.AddOption("ShotTableOFF",  "ShotTableOFF");
+  m_turret.m_cmdActionChooser.AddOption("ShotTableON",   "ShotTableON");
+  m_turret.m_cmdActionChooser.AddOption("CompOFF",       "CompOFF");
+  m_turret.m_cmdActionChooser.AddOption("CompON",        "CompON");
   frc::SmartDashboard::PutData(&m_turret.m_cmdActionChooser); 
 }
 
@@ -140,6 +143,7 @@ void RobotContainer::DisplaySchedulerDetails() {
   //frc::SmartDashboard::PutData("Climb Status", &m_climber);
 
 }
+
 
 void RobotContainer::InitializeOdometry() {
   m_turret.setTurretTarget (m_turret.m_BLUE_TgtHub);

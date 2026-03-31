@@ -30,6 +30,12 @@ class Turret : public frc2::SubsystemBase {
     // Pointer for Access to the Swerve Subsystem
     Swerve * m_drivePtr;
 
+
+    // Starting Pose Chooser
+    frc::SendableChooser<frc::Pose2d> m_startPoseChooser; 
+    frc::Pose2d m_lastStartingPose;
+    frc::Pose2d m_newRobotPose;
+    
     // ****************************************
     // Target Shooter Chooser
     frc::SendableChooser<string> m_shooterTgtChooser;
@@ -55,7 +61,12 @@ class Turret : public frc2::SubsystemBase {
     frc2::CommandPtr cmdOffFeeder();
     frc2::CommandPtr cmdOffSpindexer();
     frc2::CommandPtr cmdRetractIntake();
+    frc2::CommandPtr cmdReverseIntake();
     frc2::CommandPtr cmdOffTopEnd();
+    frc2::CommandPtr cmdRevTopEnd();
+    frc2::CommandPtr cmdManualOperation();
+    frc2::CommandPtr cmdIntakeON_OFF();
+    
 
     // Indicates whether the Turret Target Pose has been SET
     bool m_turretTargetSet;
@@ -68,20 +79,20 @@ class Turret : public frc2::SubsystemBase {
     double m_turretToTargetDistance;
 
     // Hood Angle 
-    double m_hoodAngle = 10.0;
+    double m_hoodAngle = 25.3;
 
     // RPS Setting for Shooter Motors (TBD)  (Forward +value, Reverse -value)
-    double m_shooterRPS = 2.0;
+    double m_shooterRPS = 52.6;
 
     // RPS Setting for Feeder Motors (TBD)
-    double m_feederRPS = 3.0;
+    double m_feederRPS = 50.0;
 
     // RPS Setting for Spindexer Motor (TBD)
-    double m_spindexerRPS = 3.4;
+    double m_spindexerRPS = 20.0;
 
     // RPS setting for Intake Motors (TBD)
     double m_intakeUpperRPS = 35;
-    double m_intakeLowerRPS = 15;
+    double m_intakeLowerRPS = 30;
 
     // Deploy and Raise Positions for Intake Deploy Motor (TBD)
     double m_intakeDeployPosition = 18.0;
@@ -111,6 +122,10 @@ class Turret : public frc2::SubsystemBase {
 
   private:
     frc2::CommandGenericHID *xkeys;
+
+    // Logic to flip the starting Pose when RED Alliance
+    frc::Pose2d flipPose(const frc::Pose2d& pose);
+    frc::Pose2d m_startingPose;
 
     // Shot Table Enable Flag
     bool m_isShotTableEnabled = false;
@@ -183,9 +198,15 @@ class Turret : public frc2::SubsystemBase {
     bool isHoodActive;      // MUST be TRUE to shoot balls (when FALSE, the hood motor is LOWERED)
     bool isShooterActive;   // MUST be TRUE to shoot balls (when FALSE, the (2) shooter motor are STOPPED)
     bool isFeederActive;    // MUST be TRUE to feed balls  (when FALSE, the (2) feeder motors are STOPPED)
+    bool isFeederReversed;
     bool isSpindexerActive; // MUST be TRUE to feed balls  (when FALSE, the spindexer is STOPPED)
+    bool isSpindexerReversed;
     bool isIntakeActive;    // MUST be TRUE to pickup balls (when FALSE, the intake is UP and STOPPED)
     bool isIntakeDeployed;
+    // Reversal Button(s) - Reverses on push, drives forward on next push.
+    bool isTopEndReversed;  // Reverses TopEnd Motors (Loader and Spindexer)  - Shooter is NOT reversed
+    bool isIntakeReversed;  // Reverses Intake Motors (Upper and Lower Intake) - 
+    bool isManualOperation; // Select Manual Setting of all Top End Robot Motors
 
     bool isTopEndActive;           // Set TRUE when the Top End has been turned on
     bool isTurretDeadZoneDisabled; // Set TRUE when the Top End was enabled, and then entered the dead zone.
@@ -303,6 +324,7 @@ class Turret : public frc2::SubsystemBase {
     void deployIntake ();
     void raiseIntake ();
     void retractIntake ();
+    void intakeOnOff();
 
     
     double computeDistanceInMeters(double x1, double y1, double x2, double y2);
@@ -327,5 +349,9 @@ class Turret : public frc2::SubsystemBase {
     void disableSpindexerOperation (); 
     void retractIntakeOperation ();
     void disableTopEndOperation ();
+    void reverseTopEndOperation();
+    void reverseIntakeOperation();
+    void manualOperation();
+    void intakeOnOffOperation();
     
 };

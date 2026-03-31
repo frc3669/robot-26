@@ -32,7 +32,6 @@ class RobotContainer {
   void DisplaySchedulerDetails();
   void InitializeOdometry();
   
- // ScoringMech m_scoringMech{&m_XKeys};
 
  private:
   frc::GenericHID m_driverController{0};
@@ -48,12 +47,11 @@ class RobotContainer {
   std::optional<frc2::CommandPtr> m_blueTrench;
   std::optional<frc2::CommandPtr> m_blueNeutralZone;
   std::optional<frc2::CommandPtr> m_blueDepot;
-  std::optional<frc2::CommandPtr> m_redTrench;
-  std::optional<frc2::CommandPtr> m_redNeutralZone;
-  std::optional<frc2::CommandPtr> m_redDepot;
-
   frc::SendableChooser<frc2::Command*> m_chooser;
+
 
   void ConfigureBindings();
   void RegisterNamedCommands();
+  
+
 };

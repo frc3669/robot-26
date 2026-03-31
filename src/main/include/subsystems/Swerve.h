@@ -44,12 +44,22 @@ class Swerve : public frc2::SubsystemBase
     // ****************************************
     // get the current pose of the robot
     frc::Pose2d getPose();
-
+   
+    // *******************************************
+    // Hooks for Turret to set the starting Robot Pose, from Smartdashboard
+    // 1. Set the m_newRobotStartPose
+    // 2. Set the flag m_isNewRobotStartPoseResetSelected = true.
+    // NEED TO DO IT THIS WAY SINCE WE ARE TALKING TASK TO TASK...RACE CONDITION
+    bool m_isNewRobotStartPoseResetSelected;
+    frc::Pose2d m_newRobotStartPose = frc::Pose2d {0_m, 0_m, frc::Rotation2d(0_deg)};   
+    // *******************************************
+    
   private:
     double m_gyro_compensation_factor = 1.00;
     frc::GenericHID m_driverController;
     ctre::phoenix6::hardware::Pigeon2 gyro{1, ctre::phoenix6::CANBus("Swerve CAN")};
     ctre::phoenix6::StatusSignal<units::angle::degree_t> * m_gyroAngleSignal;
+    ctre::phoenix6::StatusSignal<units::angular_velocity::degrees_per_second_t> * m_gyroRateSignal;
     std::vector<ctre::phoenix6::BaseStatusSignal*> m_statusSignals;
     frc::Timer autoTimer;
     frc::Timer positionReachedTimer;
@@ -104,8 +114,11 @@ class Swerve : public frc2::SubsystemBase
     // target pose for autonomous positioning during teleop
     frc::Pose2d m_targetPose;
 
-    
-
+      // sets the robot's current pose to the new pose specified
+    void resetPose(frc::Pose2d newPose);
+     // sets the robot's current rotation to the new rotation specified
+    void resetRotation(frc::Rotation2d newRotation);
+  
     // rotating buffer to store past odometry positions
     frc::Translation2d m_pastTranslations[100];
     // the number of translations stored in the buffer that are relavent
@@ -123,10 +136,7 @@ class Swerve : public frc2::SubsystemBase
     bool targetPoseReached();
     // returns true when the target pose has been withing range for the given settling time
     bool targetPoseReachedFor(units::second_t settleTime);
-    // sets the robot's current rotation to the new rotation specified
-    void resetRotation(frc::Rotation2d newRotation);
-    // sets the robot's current pose to the new pose specified
-    void resetPose(frc::Pose2d newPose);
+     
     // drives the swerve using the joystick
     void driveTeleop();
     // drives the robot with the given chassis speeds

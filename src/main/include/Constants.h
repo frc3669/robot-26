@@ -14,6 +14,8 @@ namespace MainConst {
     inline constexpr double reefToRobotDistance = 1.298;
     inline constexpr double scoringOffsetMeters = 0.14;
     inline constexpr double safeReefDistanceMeters = reefToRobotDistance + scoringOffsetMeters;
+    inline constexpr units::meter_t kFieldLength = 16.54175_m;
+    inline constexpr units::meter_t kFieldWidth  = 8.0137_m;
 }
 
 namespace DriverControllerConstants {

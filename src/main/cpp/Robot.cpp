@@ -7,6 +7,8 @@
 #include <frc2/command/CommandScheduler.h>
 // #include "frc/DataLogManager.h"
 
+using namespace MainConst;
+
 Robot::Robot() {
   m_container.DisplaySchedulerDetails();
   m_container.ConfigureDefaultCommands();
@@ -25,6 +27,7 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
+
   frc2::CommandScheduler::GetInstance().Run();
 }
 
@@ -44,8 +47,9 @@ void Robot::DisabledPeriodic() {}
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
-  m_autonomousCommand = m_container.GetAutonomousCommand();
 
+  // Select the Autonomous Command to Run and Schedule it
+  m_autonomousCommand = m_container.GetAutonomousCommand();
   if (m_autonomousCommand != nullptr) {
     frc2::CommandScheduler::GetInstance().Schedule(m_autonomousCommand);
   } else {
@@ -85,6 +89,7 @@ void Robot::SimulationInit() {}
  * This function is called periodically whilst in simulation.
  */
 void Robot::SimulationPeriodic() {}
+
 
 #ifndef RUNNING_FRC_TESTS
 int main() {

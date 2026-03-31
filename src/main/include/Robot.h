@@ -8,6 +8,11 @@
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/CommandPtr.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/smartdashboard/SendableChooser.h>
+#include <frc/smartdashboard/Field2d.h>
+#include <frc/DriverStation.h>
+#include <units/length.h>
 
 #include "RobotContainer.h"
 
@@ -26,10 +31,14 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
+
  private:
+
+
   // Have it empty by default so that if testing teleop it
   // doesn't have undefined behavior and potentially crash.
   frc2::Command* m_autonomousCommand;
 
   RobotContainer m_container;
+ 
 };
