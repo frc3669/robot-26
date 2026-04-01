@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RT-PassNZ"
+            "pathName": "BlueTrTop-NZTop"
           }
         },
         {
@@ -49,19 +49,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RNZTop-RNZBot"
+            "pathName": "NZTop-NZLow"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RNZBot-RNZHubBot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RNZHubBot-RNZHubTop"
+            "pathName": "BTrTopNZBot-NZTop"
           }
         }
       ]

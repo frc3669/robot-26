@@ -3,38 +3,43 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 15.895939177101969,
-        "y": 6.330894454382826
+        "x": 7.653434704830055,
+        "y": 1.7391055456171727
       },
       "prevControl": null,
       "nextControl": {
-        "x": 14.468103756708409,
-        "y": 6.28221824686941
+        "x": 7.423648447325539,
+        "y": 1.8375853702619633
       },
       "isLocked": false,
-      "linkedName": "ROStep1"
+      "linkedName": "BTrTopNZBot"
     },
     {
       "anchor": {
-        "x": 15.895939177101969,
-        "y": 5.470948121645796
+        "x": 6.598783542039356,
+        "y": 6.622951699463328
       },
       "prevControl": {
-        "x": 14.435652951699465,
-        "y": 5.519624329159212
+        "x": 6.598783542039356,
+        "y": 5.892808586762076
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ROStep2"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.1283422459893046,
+      "rotationDegrees": 112.58069825553704
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 0.6,
+    "maxAcceleration": 0.6,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 92.60256220249981
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

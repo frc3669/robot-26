@@ -44,9 +44,9 @@ class RobotContainer {
   Turret m_turret{&m_drive, &m_XKeys};
 
   // autonomous routines
-  std::optional<frc2::CommandPtr> m_blueTrench;
-  std::optional<frc2::CommandPtr> m_blueNeutralZone;
-  std::optional<frc2::CommandPtr> m_blueDepot;
+  std::optional<frc2::CommandPtr> m_TrenchOutpost;
+  std::optional<frc2::CommandPtr> m_TrenchDepot;
+  std::optional<frc2::CommandPtr> m_Depot;
   frc::SendableChooser<frc2::Command*> m_chooser;
 
 

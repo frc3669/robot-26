@@ -78,11 +78,13 @@ void RobotContainer::RegisterNamedCommands() {
 
 void RobotContainer::ConfigureChooser() {
 
-  m_blueTrench = PathPlannerAuto("Blue Trench").ToPtr();
-  m_blueDepot  = PathPlannerAuto("Blue Depot").ToPtr();
-  if (m_blueTrench.has_value() &&  m_blueDepot.has_value()) {
-    m_chooser.SetDefaultOption("Blue Trench", m_blueTrench.value().get());
-    m_chooser.AddOption("Blue Depot", m_blueDepot.value().get());
+  m_TrenchOutpost = PathPlannerAuto("Trench Outpost").ToPtr();
+  m_TrenchDepot = PathPlannerAuto("Trench Depot").ToPtr();
+  m_Depot  = PathPlannerAuto("Depot").ToPtr();
+  if (m_TrenchOutpost.has_value() &&  m_TrenchDepot.has_value() && m_Depot.has_value()) {
+    m_chooser.SetDefaultOption("Trench Outpost", m_TrenchOutpost.value().get());
+    m_chooser.AddOption("Trench Depot", m_TrenchDepot.value().get());
+    m_chooser.AddOption("Depot", m_Depot.value().get());
   } 
   else {
     clog << "failed to get Autonomous Paths\n";

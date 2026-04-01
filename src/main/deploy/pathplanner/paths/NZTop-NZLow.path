@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.491180679785331,
-        "y": 6.915008944543827
+        "x": 7.637209302325582,
+        "y": 6.99613595706619
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.624941446654218,
-        "y": 4.8388105324688935
+        "x": 7.669660107334526,
+        "y": 5.600751341681574
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BTrTopNZTop"
     },
     {
       "anchor": {
@@ -33,15 +33,15 @@
     {
       "anchor": {
         "x": 7.653434704830055,
-        "y": 1.0414132379248655
+        "y": 1.7391055456171727
       },
       "prevControl": {
-        "x": 7.683014891917975,
-        "y": 2.0876014818619524
+        "x": 7.7021109123434695,
+        "y": 2.6639534883720923
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BTrTopNZBot"
     }
   ],
   "rotationTargets": [],
@@ -49,8 +49,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 0.6,
+    "maxAcceleration": 0.6,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -64,7 +64,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -86.18592516570962
+    "rotation": -92.12109639666153
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
