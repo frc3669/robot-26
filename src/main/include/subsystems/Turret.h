@@ -66,6 +66,7 @@ class Turret : public frc2::SubsystemBase {
     frc2::CommandPtr cmdRevTopEnd();
     frc2::CommandPtr cmdManualOperation();
     frc2::CommandPtr cmdIntakeON_OFF();
+    frc2::CommandPtr cmdUseCameras();
     
 
     // Indicates whether the Turret Target Pose has been SET
@@ -207,6 +208,7 @@ class Turret : public frc2::SubsystemBase {
     bool isTopEndReversed;  // Reverses TopEnd Motors (Loader and Spindexer)  - Shooter is NOT reversed
     bool isIntakeReversed;  // Reverses Intake Motors (Upper and Lower Intake) - 
     bool isManualOperation; // Select Manual Setting of all Top End Robot Motors
+    bool isCamerasInUse;    // Whether Limelight Cameras are in use
 
     bool isTopEndActive;           // Set TRUE when the Top End has been turned on
     bool isTurretDeadZoneDisabled; // Set TRUE when the Top End was enabled, and then entered the dead zone.
@@ -353,5 +355,6 @@ class Turret : public frc2::SubsystemBase {
     void reverseIntakeOperation();
     void manualOperation();
     void intakeOnOffOperation();
+    void cameraOperation();
     
 };

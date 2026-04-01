@@ -25,6 +25,7 @@ Turret::Turret(Swerve * drivePtr, frc2::CommandGenericHID *xkeys) {
     isIntakeDeployed = false;
     isIntakeReversed = false;   // Intake is Reversed
     isTurretDeadZoneDisabled = false;
+    isCamerasInUse = false;     // Whether Cameras ar in Use
 
     // ***************************************
     // define PID values for all Turret motors
@@ -252,6 +253,13 @@ void Turret::Periodic() {
     } else {
        frc::SmartDashboard::PutString("Manual Ctrl", "NO"); 
     }   
+    if (isCamerasInUse) {
+       frc::SmartDashboard::PutString("Cameras Used", "YES"); 
+      
+    } else {
+       frc::SmartDashboard::PutString("Cameras Used", "NO"); 
+    }   
+
 
     // Control Turret Subsystem Opoeration from Smart Dashboard
     string cmdAction = m_cmdActionChooser.GetSelected();
@@ -1063,7 +1071,14 @@ void Turret::disableTopEndOperation ()    { stopSpindexer(); stopSpindexer(); st
 void Turret::reverseTopEndOperation ()    { isTopEndReversed  = !isTopEndReversed; } 
 void Turret::manualOperation ()           { isManualOperation = !isManualOperation; }
 void Turret::intakeOnOffOperation ()      { intakeOnOff(); }
-
+void Turret::cameraOperation()            { 
+    isCamerasInUse = !isCamerasInUse; 
+    if (isCamerasInUse) {
+        m_drivePtr->m_isCamerasUsedForOdometry = true;
+    } else {
+        m_drivePtr->m_isCamerasUsedForOdometry = false;
+    };
+}
 
 frc2::CommandPtr Turret::cmdOnTurret()  {
     return RunOnce([this] { enableTurretOperation(); }).WithName("Enable Turret Operation");
@@ -1143,6 +1158,9 @@ frc2::CommandPtr Turret::cmdIntakeON_OFF() {
    return RunOnce([this] { intakeOnOffOperation(); }).WithName("Intake ON or OFF");
 }
 
+frc2::CommandPtr Turret::cmdUseCameras() {
+   return RunOnce([this] { cameraOperation(); }).WithName("Cameras ON or OFF");
+}
 
 // Turret Destructor
 Turret::~Turret() {}

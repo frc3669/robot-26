@@ -34,10 +34,13 @@ void RobotContainer::ConfigureBindings() {
   m_XKeys.Button(4).OnTrue(m_turret.cmdRetractIntake());
   m_XKeys.Button(5).OnTrue(m_turret.cmdDeployIntake());
 
+  m_XKeys.Button(7).OnTrue(m_turret.cmdUseCameras());
+
   m_XKeys.Button(13).OnTrue(m_turret.cmdReverseIntake());
   m_XKeys.Button(14).OnTrue(m_turret.cmdRevTopEnd());
   m_XKeys.Button(15).OnTrue(m_turret.cmdManualOperation());
   m_XKeys.Button(16).OnTrue(m_turret.cmdIntakeON_OFF());
+
 
   // scoring mechanism button bindings
   //m_XKeys.Button(9).OnTrue(GeneralCmds::IntakeSafely(m_drive, m_scoringMech));

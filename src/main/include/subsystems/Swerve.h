@@ -50,6 +50,7 @@ class Swerve : public frc2::SubsystemBase
     // 1. Set the m_newRobotStartPose
     // 2. Set the flag m_isNewRobotStartPoseResetSelected = true.
     // NEED TO DO IT THIS WAY SINCE WE ARE TALKING TASK TO TASK...RACE CONDITION
+    bool m_isCamerasUsedForOdometry;
     bool m_isNewRobotStartPoseResetSelected;
     frc::Pose2d m_newRobotStartPose = frc::Pose2d {0_m, 0_m, frc::Rotation2d(0_deg)};   
     // *******************************************

@@ -30,6 +30,7 @@ Swerve::Swerve(int driverControllerPortNum) :
     BaseStatusSignal::SetUpdateFrequencyForAll(200_Hz, m_statusSignals);
     // Flag for odometry thread to resetPose
     m_isNewRobotStartPoseResetSelected = false;
+    m_isCamerasUsedForOdometry = false;
 
     // configure AutoBuilder
     robotConfig = RobotConfig::fromGUISettings();
@@ -305,10 +306,12 @@ void Swerve::UpdateVision(const std::string& name) {
         // Get the correct timestamp. The helper function provides an FPGA-timestamp-aligned value.
         units::second_t imageCaptureTime = units::second_t{llPose.timestampSeconds};
 
-        // Add the vision measurement to the pose estimator
-        // Make sure the vision measurement timestamp aligns with your robot's internal timebase (FPGA time is typical)
-        // NOTE: Only use the Robot gyro - do not use the camera vision angle.
-        m_poseEstimator.AddVisionMeasurement(visionPose2d, imageCaptureTime);
+        if (m_isCamerasUsedForOdometry) {
+           // Add the vision measurement to the pose estimator
+           // Make sure the vision measurement timestamp aligns with your robot's internal timebase (FPGA time is typical)
+           // NOTE: Only use the Robot gyro - do not use the camera vision angle.
+           m_poseEstimator.AddVisionMeasurement(visionPose2d, imageCaptureTime);
+        }
     }
 }
 
@@ -329,14 +332,20 @@ void Swerve::OdometryThread() {
                                    m_backLeft.GetPosition(), 
                                    m_backRight.GetPosition()} );
 
+        // *******************************************
+        // Cameras MAY or MAY NOT be used in robot odometry
+        // See UpdateVision code for flag which includes.
+        // Cameras will report position, and will display to Dashboard.
+        // They MAY NOT be used for the odometry....
         // Adjust for each Limelight Camera
         // LEFT
-        //UpdateVision("limelight-left");   
+        UpdateVision("limelight-left");   
         // RIGHT
-        //UpdateVision("limelight-right");       
+        UpdateVision("limelight-right");       
         // BACK
-        //UpdateVision("limelight-back");
-
+        UpdateVision("limelight-back");
+        // *******************************************
+        
         // Get the current robot pose
         m_pose = m_poseEstimator.GetEstimatedPosition();       
     }
