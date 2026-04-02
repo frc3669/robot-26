@@ -104,13 +104,13 @@ class Turret : public frc2::SubsystemBase {
     frc::Translation2d m_turretTarget {0_in, 0_in};
 
      // Pre-defined TurretTargetPose Selections  (X, Y) in INCHES
-    frc::Translation2d m_BLUE_TgtHub {182.11_in, 158.845_in};
-    frc::Translation2d m_BLUE_Outpost{90.0_in,    80.0_in};
-    frc::Translation2d m_BLUE_Depot  {90.0_in,   250.0_in};
+    frc::Translation2d m_BLUE_TgtHub { 4.67_m, 4.07_m};
+    frc::Translation2d m_BLUE_Outpost{ 2.3_m,  2.0_m};
+    frc::Translation2d m_BLUE_Depot  { 2.3_m,  6.41_m};
 
-    frc::Translation2d m_RED_TgtHub  {469.11_in,  158.845_in}; 
-    frc::Translation2d m_RED_Outpost {559.0_in,   250.0_in};
-    frc::Translation2d m_RED_Depot   {559.0_in,   80.0_in};
+    frc::Translation2d m_RED_TgtHub  { 12.02_m,  4.07_m}; 
+    frc::Translation2d m_RED_Outpost { 14.33_m,  6.41_m};
+    frc::Translation2d m_RED_Depot   { 14.33_m,  2.05_m};
     // Target Selection Mode 
     // Manual OR Automatic 
     bool m_isManualTgtSelection = false;
@@ -269,28 +269,28 @@ class Turret : public frc2::SubsystemBase {
     // *****
     const int MAX_SHOTMAP_INDEX = 50;
     map<int32_t, ShotSolutionEntry> m_shotSolutionMap = {
-        { 3, { 48.0,    14.0,   50,   20  }},    // 1 meters
-        { 4, { 48.7,    16.0,   50,   20  }},
-        { 5, { 49.3,    18.0,   50,   20  }},
-        { 6, { 50.0,    20.0,   50,   20  }},    // 2 meters
-        { 7, { 51.3,    22.6,   50,   20  }},
-        { 8, { 52.6,    25.3,   50,   20  }},
-        { 9, { 54.0,    28.0,   50,   20  }},    // 3 meters
-        {10, { 56.0,    29.0,   50,   20  }},
-        {11, { 58.0,    30.0,   50,   20  }},
-        {12, { 60.0,    31.0,   50,   20  }},    // 4 meters
-        {13, { 63.0,    31.6,   50,   20  }},
-        {14, { 66.0,    32.2,   50,   20  }},
-        {15, { 69.0,    33.0,   50,   20  }},    // 5 meters
-        {16, { 72.0,    33.7,   50,   20  }},
-        {17, { 75.0,    34.3,   50,   20  }},
-        {18, { 78.0,    35.0,   50,   20  }},    // 6 meters
-        {19, { 81.3,    35.7,   50,   20  }},
-        {20, { 84.6,    36.4,   50,   20  }},
+        { 3, { 48.0,    14.0,   47,   20  }},    // 1 meters
+        { 4, { 48.7,    16.0,   47,   20  }},
+        { 5, { 49.3,    18.0,   47,   20  }},
+        { 6, { 50.0,    20.0,   47,   20  }},    // 2 meters
+        { 7, { 51.3,    22.6,   47,   20  }},
+        { 8, { 52.6,    25.3,   47,   20  }},
+        { 9, { 54.0,    28.0,   47,   20  }},    // 3 meters
+        {10, { 56.0,    29.0,   47,   20  }},
+        {11, { 58.0,    30.0,   47,   20  }},
+        {12, { 60.0,    31.0,   47,   20  }},    // 4 meters
+        {13, { 63.0,    31.6,   47,   20  }},
+        {14, { 66.0,    32.2,   47,   20  }},
+        {15, { 69.0,    33.0,   47,   20  }},    // 5 meters
+        {16, { 72.0,    33.7,   47,   20  }},
+        {17, { 75.0,    34.3,   47,   20  }},
+        {18, { 78.0,    35.0,   47,   20  }},    // 6 meters
+        {19, { 81.3,    35.7,   47,   20  }},
+        {20, { 84.6,    36.4,   47,   20  }},
         {21, { 88.0,    37.0,   50,   20  }},    // 7 meters
-        {22, { 92.0,    39.0,   50,   20  }},
-        {23, { 96.0,    41.0,   50,   20  }},
-        {24, { 100.0,   43.0,   50,   20  }}    // 8 meters
+        {22, { 92.0,    39.0,   47,   20  }},
+        {23, { 96.0,    41.0,   47,   20  }},
+        {24, { 100.0,   43.0,   47,   20  }}    // 8 meters
     };
 
 

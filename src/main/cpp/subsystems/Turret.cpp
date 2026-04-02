@@ -403,9 +403,9 @@ void Turret::Periodic() {
                 }
                 else {
                    if (m_pose.Y().value() < 4.0) {
-                      setTurretTarget (m_RED_Outpost);
-                   } else {
                       setTurretTarget (m_RED_Depot);
+                   } else {
+                      setTurretTarget (m_RED_Outpost );
                    }
                 }      
             }
@@ -421,11 +421,15 @@ void Turret::Periodic() {
         double turretToTargetAngle = computeTurretToTgtAngleInDegrees(m_turretPose,
                                                                       m_turretTarget );
 
-
-        m_turretToTargetDistance = computeDistanceInMeters(m_turretPose.X().value(),
-                                                           m_turretPose.Y().value(),
-                                                           m_turretTarget.X().value(),
-                                                           m_turretTarget.Y().value());
+        if (isManualOperation) {
+            m_turretToTargetDistance = frc::SmartDashboard::GetNumber("TurretTgtDistance", 1.0);
+        }
+        else {
+            m_turretToTargetDistance = computeDistanceInMeters(m_turretPose.X().value(),
+                                                               m_turretPose.Y().value(),
+                                                               m_turretTarget.X().value(),
+                                                               m_turretTarget.Y().value());
+        }
 
         // Convert Distance to SHOT SOLUTION MAP table entry index
         m_shotTableIndex = (int) ((m_turretToTargetDistance / 3.0) * 10);     // 1/3 meter steps
@@ -459,7 +463,9 @@ void Turret::Periodic() {
         frc::SmartDashboard::PutNumber("TurretPoseY", m_turretPose.Y().value());  
  
         frc::SmartDashboard::PutNumber("TurretTgtAngle", turretToTargetAngle);  
-        frc::SmartDashboard::PutNumber("TurretTgtDistance", m_turretToTargetDistance);  
+        if (!isManualOperation) {
+            frc::SmartDashboard::PutNumber("TurretTgtDistance", m_turretToTargetDistance);  
+        }
         // ****************************************
 
 

@@ -284,7 +284,7 @@ void Swerve::UpdateVision(const std::string& name) {
 
     // Get Average Distance to April Tag
     double avgTagDist = llPose.avgTagDist;
-    if (avgTagDist > 2.7) return;                                 // REJECT - Tag is too far away.
+    if (avgTagDist > 3.0) return;                                 // REJECT - Tag is too far away.
 
     double avgTagArea = llPose.avgTagArea;
     if (avgTagArea < 0.1) return;                                 // REJECT - Tag Area is too small
